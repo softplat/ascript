@@ -57,7 +57,7 @@ package parser
 		//
 		
 		static public function hasScript(scname:String):Boolean{
-			CONFIG::air{
+			if(Script.app.hasDefinition("flash.filesystem.FileStream")){
 				if(!Branch[scname]){
 					var f:File=File.applicationDirectory.resolvePath(Script.scriptdir+scname+".as");
 					if(f.exists){
