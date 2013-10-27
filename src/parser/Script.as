@@ -51,17 +51,17 @@ package parser
 	public class Script
 	{
 		static var ____globalclass:GenTree;
-		public static var __globaldy:DY;
+		internal static var __globaldy:DY;
 		public static var vm:DY;
-		public static var output:Function;
+		internal static var output:Function;
 		//
 		static var classes:Object={};
 		static var errores:Object={};
 		//
-		static public var Debug:*;
+		static internal var Debug:*;
 		static var app:ApplicationDomain;
 		//
-		public static var defaults:Object={};
+		internal static var defaults:Object={};
 		static public function addAPI(Aname:String,api:*){
 			defaults[Aname]=api;
 		}
@@ -85,7 +85,7 @@ package parser
 			}
 			return classes[clname];
 		}
-		static public var _root:Sprite;
+		static internal var _root:Sprite;
 		//
 		static public function set root(r:Sprite){
 			_root=r;
@@ -147,7 +147,7 @@ package parser
 		static public function getFunc(funcname:String):Function{
 			return ProxyFunc.getAFunc(__globaldy,funcname);
 		}
-		static public function LoadFromFile(code:String){
+		static private function LoadFromFile(code:String){
 			//code=code.replace(/\r/,"");
 			var ld:URLLoader=new URLLoader();
 			ld.addEventListener(Event.COMPLETE,onloadFile);
@@ -284,7 +284,7 @@ package parser
 			}
 			return "{}";
 		}
-		static public function escapeString( str:String ):String {
+		static private function escapeString( str:String ):String {
 			// create a string to store the string's jsonstring value
 			var s:String = "";
 			// current character in the string we're processing
