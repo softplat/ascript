@@ -29,7 +29,6 @@ package parse {
 	import flash.events.EventDispatcher;
 	import flash.utils.Dictionary;
 
-	//import util.col.Set;
 	/**
        * @author dayu
        */
