@@ -54,22 +54,22 @@ package util.col
 				element.push(object);		
 			}
 		}
-		public function setobj(s:String,Value:Object){
+		public function setobj(s:String,Value:Object):void{
 			if(exist(s)){
 				element[obj[s]]=Value;
 			}
 		}
-		public function getobj(s:String){
+		public function getobj(s:String):Object{
 			if(exist(s)){
 				return element[obj[s]];
 			}
 			return null;
 		}
-		public function exist(s:String) {
+		public function exist(s:String):Boolean{
 			return obj[s] != null;
 		}
 		
-		public function remove(s:String) {
+		public function remove(s:String):void{
 			if (obj[s] != null) {
 				//if(obj[s])
 				arr.splice(obj[s], 1);
@@ -80,7 +80,7 @@ package util.col
 				delete obj[s];
 			}
 		}
-		public function get length() {
+		public function get length():int{
 			return arr.length;
 		}
 		

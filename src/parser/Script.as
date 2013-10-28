@@ -62,11 +62,11 @@ package parser
 		static var app:ApplicationDomain;
 		//
 		internal static var defaults:Object={};
-		static public function addAPI(Aname:String,api:*){
+		static public function addAPI(Aname:String,api:*):void{
 			defaults[Aname]=api;
 		}
 		//
-		static public function getDef(clname:String){
+		static public function getDef(clname:String):*{
 			if(!classes[clname]){
 				if(!errores[clname]){
 					try{
@@ -87,12 +87,12 @@ package parser
 		}
 		static internal var _root:Sprite;
 		//
-		static public function set root(r:Sprite){
+		static public function set root(r:Sprite):void{
 			_root=r;
 			app=r.loaderInfo.applicationDomain;
 		}
 		static public var scriptdir:String="script/";
-		static public function init(__root:Sprite,code:String=null){
+		static public function init(__root:Sprite,code:String=null):void{
 			root=__root;
 			//
 			DY.prototype.toString=function():String{
@@ -132,7 +132,7 @@ package parser
 		 * @return 
 		 * 
 		 */		
-		static public function LoadFromString(code:String){
+		static public function LoadFromString(code:String):*{
 			code=code.replace(/public /g,"");
 			code=code.replace(/private /g,"");
 			code=code.replace(/protected /g,"");
@@ -147,16 +147,16 @@ package parser
 		static public function getFunc(funcname:String):Function{
 			return ProxyFunc.getAFunc(__globaldy,funcname);
 		}
-		static private function LoadFromFile(code:String){
+		static private function LoadFromFile(code:String):void{
 			//code=code.replace(/\r/,"");
 			var ld:URLLoader=new URLLoader();
 			ld.addEventListener(Event.COMPLETE,onloadFile);
 			ld.load(new URLRequest(code));
 		}
-		static function onloadFile(e:Event){
+		static private function onloadFile(e:Event):void{
 			LoadFromString((e.target as URLLoader).data);
 		}
-		static function newScript(_name:String){
+		static private function newScript(_name:String):*{
 			var mycode:String="class "+_name+"{}";
 			return new GenTree(mycode);
 		}
@@ -169,9 +169,9 @@ package parser
 		 **/
 		static public function New(...args):DY{
 			if(args.length==0){
-				var _name="__DY";//匿名类
+				var _name:String="__DY";//匿名类
 			}else{
-				var _name=args.shift();
+				var _name:String=args.shift();
 			}
 			if(GenTree.hasScript(_name)){
 				return new DY(_name,args);
@@ -186,7 +186,7 @@ package parser
 		 * @return 
 		 * 
 		 */		
-		static public function declare(code:String,clname:String="____globalclass"){
+		static public function declare(code:String,clname:String="____globalclass"):*{
 			//trace(code);
 			if(GenTree.hasScript(clname)){
 				var lex:Lex=new Lex(code);
@@ -202,7 +202,7 @@ package parser
 			}
 		}
 		//----------
-		static public function eval(code:String,...args){
+		static public function eval(code:String,...args):*{
 			var cnode:GNode;
 			if(args && args.length>0){
 				var code:String="function __niming(args){return "+code+";}";
@@ -227,7 +227,7 @@ package parser
 				return __globaldy.executeST(cnode);
 			}
 		}
-		static public function execute(code:String,...args){
+		static public function execute(code:String,...args):*{
 			//trace(code);
 			if(args && args.length>0){
 				var code:String="function __niming(args){"+code+"}";
@@ -254,14 +254,14 @@ package parser
 			}
 		}
 		//
-		static public function decode(str:String){
+		static public function decode(str:String):*{
 			var cnode:GNode;
 			var code="return "+str+";";
 			var lex:Lex=new Lex(code,true);
 			cnode=____globalclass.declare(lex);
 			return __globaldy.executeST(cnode);
 		}
-		static function encodeObj(ob:Object):String{
+		static private function encodeObj(ob:Object):String{
 			if(ob==null){
 				//throw new Error("无法对空对象进行编码");
 				return "null";
@@ -343,7 +343,7 @@ package parser
 			
 			return "\"" + s + "\"";
 		}
-		static function encodeArr(ar:Array){
+		static private function encodeArr(ar:Array):String{
 			var str:String="[";
 			for(var i:int=0;i<ar.length;i++){
 				if(ar[i]==null){
@@ -360,8 +360,8 @@ package parser
 			}
 			return "[]";
 		}
-		static public function encode(ob:Object){
-			var str="";
+		static public function encode(ob:Object):*{
+			var str:String="";
 			if(ob is Array){
 				return encodeArr(ob as Array);
 			}

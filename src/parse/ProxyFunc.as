@@ -36,7 +36,7 @@ package parse
 	
 	public class ProxyFunc
 	{
-		static var dics:Dictionary=new Dictionary();
+		static private var dics:Dictionary=new Dictionary();
 		static public function getAFunc(_it:DY,fn:String):Function{
 			if(!dics[_it]){
 				dics[_it]=new Dictionary();
@@ -49,7 +49,7 @@ package parse
 		//
 		private var it:DY;//首先明确是哪个脚本类的哪个方法
 		private var funcname:String;//这是it监听函数名。
-		var Func:Function;
+		private var Func:Function;
 		
 		public function ProxyFunc(_it:DY,fn:String)
 		{
@@ -63,7 +63,7 @@ package parse
 			}
 		}
 		//=================
-		public function Func1(arg1){
+		public function Func1(arg1):*{
 			try{
 				//trace(it._rootnode.name+" call "+funcname+"("+args+")")
 				return it.call(funcname,[arg1]);
@@ -71,7 +71,7 @@ package parse
 				trace(e.getStackTrace());
 			}
 		};
-		public function FuncN(...args){
+		public function FuncN(...args):*{
 			try{
 				//trace(it._rootnode.name+" call "+funcname+"("+args+")")
 				return it.call(funcname,args);

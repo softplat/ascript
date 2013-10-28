@@ -32,6 +32,7 @@ package parser
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
 	import flash.system.Capabilities;
+	import flash.utils.getDefinitionByName;
 	
 	import parse.Lex;
 	import parse.Token;
@@ -59,12 +60,15 @@ package parser
 		static public function hasScript(scname:String):Boolean{
 			if(Script.app.hasDefinition("flash.filesystem.FileStream")){
 				if(!Branch[scname]){
-					var f:File=File.applicationDirectory.resolvePath(Script.scriptdir+scname+".as");
+                    var File:Class=getDefinitionByName("flash.filesystem.File") as Class;
+                    var FileStream:Class=getDefinitionByName("flash.filesystem.FileStream") as Class;
+                    var FileMode:Class=getDefinitionByName("flash.filesystem.FileMode") as Class;
+					var f:Object=File.applicationDirectory.resolvePath(Script.scriptdir+scname+".as");
 					if(f.exists){
 						//解析
-						var fs:FileStream=new FileStream();
+						var fs:Object=new FileStream();
 						fs.open(f,FileMode.READ);
-						var str=fs.readUTFBytes(f.size);
+						var str:String=fs.readUTFBytes(f.size);
 						fs.close();
 						trace("load=="+scname);
 						Script.LoadFromString(str);

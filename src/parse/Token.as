@@ -47,20 +47,20 @@ package parse {
 		public static var wordpatten:String="|as|is|instanceof|extends|in|package|for|var|new|class|function|if|else|while|return|import|public|private|protected|switch|case|break|continue|default|try|catch|finally|each|";
 		public function Token(){
 		}
-		static public function iskeyword(str:String){
+		static public function iskeyword(str:String):Boolean{
 			if(Token.wordpatten.indexOf("|"+str+"|")>=0){
 				return true;
 			}
 			return false;
 		}
-		static public function getTypeName(str:String){
+		static public function getTypeName(str:String):String{
 			if(iskeyword(str)){
 				return "TokenType.key"+str;
 			}
 			return "TokenType."+getDec(str);
 		}
 		//获取分隔符
-		static public function getDec(str:String){
+		static public function getDec(str:String):String{
 			if(str=="("){
 				return "LParent";
 			}else if(str==")"){

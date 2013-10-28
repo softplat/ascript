@@ -76,7 +76,7 @@ package parse {
             }
 	        private function skipIgnored():void {
 				skipWhite();
-				var c=0;
+				var c:int=0;
 				while(skipComments() && c<40){
 					c++;
 					skipWhite();
@@ -90,7 +90,7 @@ package parse {
 			 * to the first position after the end of the comment.
 			 */
 			private function skipComments():Boolean {
-				var re=false;
+				var re:Boolean=false;
 				var br:Boolean=false;
 				while ( ch == '/' ) {
 					// Advance past the first / to find out what type of comment
@@ -144,7 +144,7 @@ package parse {
 							//不是注释回到起点
 							ptr-=2;
 							nextChar();
-							var ttt=str.substr(ptr,20);
+							var ttt:String=str.substr(ptr,20);
 							br=true;
 							break;
 							//parseError( "Unexpected " + ch + " encountered (expecting '/' or '*' )" );
@@ -430,7 +430,7 @@ package parse {
 								token.value=uint(parseInt(word,16));
 								token.type=TokenType.constant;
 							}else{
-								var ischar=false;
+								var ischar:Boolean=false;
 								
 								while (ch=='_' || isDigit(ch) || ch==".") {
 									if(ch=='_'){
@@ -526,7 +526,7 @@ package parse {
 				// the token for the string we'll try to read the string to store the string we'll try to read
 				var s:String = "";
 				// advance past the first "
-				var mychar=ch;
+				var mychar:String=ch;
 				//-------------
 				nextChar();
 				while ( ch != mychar && ch != '' ) {
@@ -595,8 +595,8 @@ package parse {
 			private function isDigit( ch:String ):Boolean {
 				return ( ch >= '0' && ch <= '9' );
 			}
-            private function isAlpha(c:String){
-            	var v=c.charCodeAt(0);
+            private function isAlpha(c:String):Boolean{
+            	var v:Number=c.charCodeAt(0);
 				if(undot &&　c=="."){
 					return true;
 				}
