@@ -41,7 +41,7 @@ package parser
 		private var __vars:Object;//local_vars的堆栈顶
 		private var local_vars:Array;//局部变量堆栈
 		private var __API:Object;
-		public var _super:Object;
+		private var __super:Object;
 		function DY(clname:String="__DY",explist:Array=null){
 			_classname=clname;
 			__rootnode=GenTree.Branch[clname];
@@ -54,10 +54,29 @@ package parser
 			for(var o in Script.defaults){
 				__API[o]=Script.defaults[o];
 			}
-			_super={};
+			__super={};
 			init(explist||[]);//初始化字段，调用构造函数
 		}
 		//
+
+		public function get _super():Object
+		{
+			return __super;
+		}
+		/**
+		 * _super必须指向一个动态类的实例，否则脚本定义的变量将失去作用 
+		 * @param value
+		 * 
+		 */
+		public function set _super(value:Object):void
+		{
+			
+			for(var o in __super){
+				value[o]=__super[o];
+			}
+			__super = value;
+		}
+
 		public function toString():String{
 			return this._classname;
 		} 
@@ -73,18 +92,18 @@ package parser
 					return f.apply(this,args);
 				}*/
 			}
-			if(_super[methodName] is Function){
-				return callLocalFunc(_super,methodName,args);
+			if(__super[methodName] is Function){
+				return callLocalFunc(__super,methodName,args);
 			}
 			
-			executeError(_classname+">SUPER "+_super+">不存在此方法="+methodName);
+			executeError(_classname+">SUPER "+__super+">不存在此方法="+methodName);
 			return null;
 		}
 		override flash_proxy function getProperty(name:*):* {
-			return _super[name];
+			return __super[name];
 		}
 		override flash_proxy function setProperty(name:*, value:*):void {
-			_super[name] = value;
+			__super[name] = value;
 		}
 		public function get _rootnode():GenTree{
 			return __rootnode;
@@ -147,8 +166,8 @@ package parser
 						__vars=null;
 					}
 					isret=tisret;
-				}else if(_super[funcname] is Function){
-					re=callLocalFunc(_super,funcname,explist);
+				}else if(__super[funcname] is Function){
+					re=callLocalFunc(__super,funcname,explist);
 				}else {
 					executeError(_classname+"的方法:"+funcname+" 未定义");
 				}
@@ -221,16 +240,7 @@ package parser
 				
 				var lv=lvarr[0];
 				if(node.word=="="){
-					if(lv==this && lvarr[1]=="_super"){
-						var tthis=_super;
-						lv[lvarr[lvarr.length-1]]=rvalue;
-						//需要把之前的对象的声明字段加进来
-						for(var o in tthis){
-							_super[o]=tthis[o];
-						}
-					}else{
-						lv[lvarr[lvarr.length-1]]=rvalue;
-					}
+					lv[lvarr[lvarr.length-1]]=rvalue;
 					//lv[lvarr[lvarr.length-1]]=rvalue;
 				}else if(node.word=="+="){
 					lv[lvarr[lvarr.length-1]]+=rvalue;
@@ -470,8 +480,8 @@ package parser
 				}else{
 					if(__vars && __vars[vname]!=undefined){
 						scope=__vars;
-					}else if(_super.hasOwnProperty(vname) || _super[vname]!=undefined){
-						scope=_super;
+					}else if(__super.hasOwnProperty(vname) || __super[vname]!=undefined){
+						scope=__super;
 					}else if(_rootnode.motheds[vname]){
 						scope=this;
 					}else if(__API[vname]){
@@ -737,8 +747,8 @@ package parser
 							}
 						}else{
 							
-							if(_super[vname] is Function){
-								return callLocalFunc(_super,vname,explist);
+							if(__super[vname] is Function){
+								return callLocalFunc(__super,vname,explist);
 							}else if(__API[vname] is Function){
 								return (__API[vname] as Function).apply(null,explist);
 								//
