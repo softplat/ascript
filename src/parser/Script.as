@@ -167,7 +167,7 @@ package parser
 		 * @return 
 		 * 
 		 **/
-		static public function New(...args):DY{
+		static public function New(...args):*{
 			if(args.length==0){
 				var _name:String="__DY";//匿名类
 			}else{
