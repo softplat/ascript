@@ -27,7 +27,6 @@ http://ascript.softplat.com/
 
 package util.col
 {
-	import flash.utils.Dictionary;
 	
 	/**
 	 * @author dayu
