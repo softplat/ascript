@@ -1,7 +1,7 @@
 AScript是什么
 =======
 
-Ascript是一种解释型脚本语言，用ActionScript3?.0实现，并且能和ActionScript3?.0无缝结合，无需编译，即可执行。   
+Ascript是一种解释型脚本语言，用ActionScript3.0实现，并且能和ActionScript3.0无缝结合，无需编译，即可执行。   
 
 AScript能做什么
 =======   
