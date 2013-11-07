@@ -21,17 +21,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-http://code.google.com/p/ascript-as3/
-http://ascript.softplat.com/
+请访问https://github.com/softplat/ascript获取最新的Ascript
+http://code.google.com/p/ascript-as3/ 此地址只更新swc和wiki，源码不再更新
 
-注意事项：
-1，不支持  get set 属性 
-2,不支持 typeof语法
-3,不支持 除了!,++ --,之外的单元操作符
-4,方法调用的左值，无法用点语法往后估值
-5,不支持命名空间
-6,不支持匿名函数
-7,不支持vector及其语法
 */       
 
 package parser
