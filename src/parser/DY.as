@@ -34,7 +34,7 @@ package parser
 	import parse.ProxyFunc;
 
 	//注意事项，如果要用那个_super，仅限_super的类为动态的。
-	public class DY extends Proxy{
+	dynamic public class DY extends Proxy{
 		//
 		private var __rootnode:GenTree;
 		private var _classname:String;
@@ -145,9 +145,6 @@ package parser
 		}
 		public function call(funcname:String,explist:Array){
 			var re=null;
-			if(funcname=="navigateToURL"){
-				trace(2);
-			}
 			try{
 				var node:GNode=__rootnode.motheds[funcname];
 				if(node && node.nodeType==GNodeType.FunDecl){
@@ -533,6 +530,8 @@ package parser
 							return __API[vname];
 						}else if(vname=="this"){
 							return this;
+						}else{
+							return Script.__globaldy[vname];
 						}
 					}
 					var arr:Array=getLValue(node);
