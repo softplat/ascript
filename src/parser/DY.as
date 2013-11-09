@@ -486,6 +486,8 @@ package parser
 					}else if(Script._root && Script._root.loaderInfo.applicationDomain.hasDefinition(vname)){
 						scope=Script.getDef(vname);// as Class;
 						bottem=1;
+					}else{
+						scope=Script.__globaldy[vname];
 					}
 				}
 				if(!scope){
