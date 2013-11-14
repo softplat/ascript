@@ -86,7 +86,7 @@ package parser
 		
 		
 		
-		static var names:Array=["FunDecl","VarDecl","Params","MOP","LOP","COP","Stms","AssignStm","IfElseStm","WhileStm","ForStm","ReturnStm",
+		static public var names:Array=["FunDecl","VarDecl","Params","MOP","LOP","COP","Stms","AssignStm","IfElseStm","WhileStm","ForStm","ReturnStm",
 			"FunCall","VarID","ConstID","EXPS","","newClass","ERROR","importStm","CLASS","","LOPNot","Nagtive","IDENT","ForInStm",
 			"newArray","newObject","Index","SWITCH","CASE","DEFAULT","TRY","CATCH","FINALLY","BREAK","CONTINUE","ELSEIF","PREINCREMENT","INCREMENT"];
 		static public function getName(i:int):String{

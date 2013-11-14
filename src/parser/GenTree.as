@@ -28,10 +28,6 @@ http://ascript.softplat.com/
 package parser
 {
 	
-	import flash.filesystem.File;
-	import flash.filesystem.FileMode;
-	import flash.filesystem.FileStream;
-	import flash.system.Capabilities;
 	import flash.utils.getDefinitionByName;
 	
 	import parse.Lex;
@@ -99,15 +95,18 @@ package parser
 		public function toString():String{
 			var str:String="";
 			str+="package"+Package+"{\r";
-			for(var o in imports){
+			var o:String;
+			var c:String;
+			//
+			for(o in imports){
 				str+="import "+o+";\r"
 			}
 			str+="class "+name+"{\r";
-			for(var o:String in fields){
-				var c:String=(fields[o] as GNode).toString();
+			for(o in fields){
+				c=(fields[o] as GNode).toString();
 			}
-			for(var o:String in motheds){
-				var c:String=(motheds[o] as GNode).toString();
+			for(o in motheds){
+				c=(motheds[o] as GNode).toString();
 				str+=c+"\r";
 			}	
 			str+="}\r"	
@@ -120,16 +119,17 @@ package parser
 			index=0;
 			nextToken();
 			var cnode:GNode=new GNode(GNodeType.Stms);
+			var tnode:GNode;
 			while(tok){
 				if(tok.type==TokenType.keyvar){
-					var tnode:GNode=varst();
+					tnode=varst();
 					fields[tnode.name]=tnode;
 					cnode.addChild(tnode);
 				}else if(tok.type==TokenType.keyfunction){
-					var tnode:GNode=func();
+					tnode=func();
 					motheds[tnode.name]=tnode;
 				}else{
-					var tnode:GNode=st();
+					tnode=st();
 					if(tnode.name){
 						fields[tnode.name]=tnode;
 					}
@@ -143,16 +143,17 @@ package parser
 			index=0;
 			nextToken();
 			
+			var cnode:GNode;
 			if(tok.type==TokenType.keyvar){
-				var cnode:GNode=varst();
+				cnode=varst();
 				fields[cnode.name]=cnode;
 			}else if(tok.type==TokenType.keyfunction){
-				var cnode:GNode=func();
+				cnode=func();
 				motheds[cnode.name]=cnode;
 			}else if(tok.type==TokenType.LBRACE){
-				var cnode:GNode=stlist();
+				cnode=stlist();
 			}else{
-				var cnode:GNode=st();
+				cnode=st();
 			}
 			return cnode;
 		}
@@ -768,7 +769,7 @@ package parser
 			}
 			return null;
 		}
-		private function priority(s:GNode){
+		private function priority(s:GNode):int{
 			if(s.nodeType==GNodeType.MOP){
 				if(s.word=="+" || s.word=="-"){
 					return 1;
@@ -783,15 +784,16 @@ package parser
 			var nodearr:Array=[];//输出后缀表达式
 			var stack:Array=[];//符号堆栈
 			nodearr.push(gene());
+			var i:int;
 			if(tok.type==TokenType.MOP){
 				while(tok.type==TokenType.MOP){
 					cnode=new GNode(GNodeType.MOP,tok);
-					var pri=priority(cnode);
+					var pri:int=priority(cnode);
 					if(stack.length==0){
 						//stack.push(cnode);
 					}else{
-						var len=stack.length-1;
-						for(var i=len;i>=0;i--){
+						var len:int=stack.length-1;
+						for(i=len;i>=0;i--){
 							if(priority(stack[i] as GNode)>=pri){//压入到输出
 								nodearr.push(stack.pop());
 							}else{
@@ -809,18 +811,18 @@ package parser
 				}
 				
 				//通过以上2步，已经做到了后缀表达式
-				var ccc=""
-				for(var i=0;i<nodearr.length;i++){
+				var ccc:String="";
+				for(i=0;i<nodearr.length;i++){
 					ccc+=(nodearr[i] as GNode).word+".";
 				}
 				//trace(ccc);
 				//转为语法树返回
 				
-				for(var i=0;i<nodearr.length;i++){
+				for(i=0;i<nodearr.length;i++){
 					if((nodearr[i] as GNode).childs.length==0 && (nodearr[i] as GNode).nodeType==GNodeType.MOP){//
 						tnode=(nodearr[i] as GNode);
-						var right=stack.pop();
-						var left=stack.pop();
+						var right:GNode=stack.pop();
+						var left:GNode=stack.pop();
 						tnode.addChild(left);
 						tnode.addChild(right);
 						stack.push(tnode);

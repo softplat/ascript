@@ -77,11 +77,11 @@ package parser
 			}
 			return null;
 		}
-		public function addChild(node:GNode){
+		public function addChild(node:GNode):void{
 			childs.push(node);
 		}
 		static public var lev:int=0;
-		static var levs:Array=["","-","--","---","----","-----","------","--------","--------","---------","----------","-----------","------------","-------------","--------------","---------------","----------------"];
+		static private var levs:Array=["","-","--","---","----","-----","------","--------","--------","---------","----------","-----------","------------","-------------","--------------","---------------","----------------"];
 		public function toString():String{
 			var str:String=GNodeType.getName(this.gtype);
 			if(this.token){

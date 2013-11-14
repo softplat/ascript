@@ -28,30 +28,28 @@ http://code.google.com/p/ascript-as3/ 此地址只更新swc和wiki，源码不�
 
 package parser
 {
-	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.system.ApplicationDomain;
 	import flash.utils.getDefinitionByName;
-	import flash.utils.getTimer;
 	
 	import parse.Lex;
 	import parse.ProxyFunc;
 
 	public class Script
 	{
-		static var ____globalclass:GenTree;
+		static internal var ____globalclass:GenTree;
 		internal static var __globaldy:DY;
 		public static var vm:DY;
 		internal static var output:Function;
 		//
-		static var classes:Object={};
-		static var errores:Object={};
+		static internal var classes:Object={};
+		static internal var errores:Object={};
 		//
 		static internal var Debug:*;
-		static var app:ApplicationDomain;
+		static internal var app:ApplicationDomain;
 		//
 		internal static var defaults:Object={};
 		static public function addAPI(Aname:String,api:*):void{
@@ -62,7 +60,7 @@ package parser
 			if(!classes[clname]){
 				if(!errores[clname]){
 					try{
-						var c=getDefinitionByName(clname);
+						var c:*=getDefinitionByName(clname);
 						if(c){
 							classes[clname]=c;
 						}
@@ -160,10 +158,11 @@ package parser
 		 * 
 		 **/
 		static public function New(...args):*{
+			var _name:String;
 			if(args.length==0){
-				var _name:String="__DY";//匿名类
+				_name="__DY";//匿名类
 			}else{
-				var _name:String=args.shift();
+				_name=args.shift();
 			}
 			if(GenTree.hasScript(_name)){
 				return new DY(_name,args);
@@ -196,13 +195,14 @@ package parser
 		//----------
 		static public function eval(code:String,...args):*{
 			var cnode:GNode;
+			var lex:Lex;
 			if(args && args.length>0){
-				var code:String="function __niming(args){return "+code+";}";
+				code="function __niming(args){return "+code+";}";
 				if(Lex.treecach[code]){
 					cnode=Lex.treecach[code];
 					____globalclass.motheds[cnode.name]=cnode;
 				}else{
-					var lex:Lex=new Lex(code);
+					lex=new Lex(code);
 					cnode=____globalclass.declare(lex);
 					Lex.treecach[code]=cnode;
 				}
@@ -212,7 +212,7 @@ package parser
 				if(Lex.treecach[code]){
 					cnode=Lex.treecach[code];
 				}else{
-					var lex:Lex=new Lex(code);
+					lex=new Lex(code);
 					cnode=____globalclass.declare(lex);
 					Lex.treecach[code]=cnode;
 				}
@@ -221,24 +221,24 @@ package parser
 		}
 		static public function execute(code:String,...args):*{
 			//trace(code);
+			var cnode:GNode;
+			var lex:Lex;
 			if(args && args.length>0){
-				var code:String="function __niming(args){"+code+"}";
-				var cnode:GNode;
+				code="function __niming(args){"+code+"}";
 				if(Lex.treecach[code]){
 					cnode=Lex.treecach[code];
 					____globalclass.motheds[cnode.name]=cnode;
 				}else{
-					var lex:Lex=new Lex(code);
+					lex=new Lex(code);
 					cnode=____globalclass.declare(lex);
 					Lex.treecach[code]=cnode;
 				}
 				return __globaldy.call("__niming",[args]);
 			}else{
-				var cnode:GNode;
 				if(Lex.treecach[code]){
 					cnode=Lex.treecach[code];
 				}else{
-					var lex:Lex=new Lex(code);
+					lex=new Lex(code);
 					cnode=____globalclass.declares(lex);
 					Lex.treecach[code]=cnode;
 				}
@@ -248,7 +248,7 @@ package parser
 		//
 		static public function decode(str:String):*{
 			var cnode:GNode;
-			var code="return "+str+";";
+			var code:String="return "+str+";";
 			var lex:Lex=new Lex(code,true);
 			cnode=____globalclass.declare(lex);
 			return __globaldy.executeST(cnode);

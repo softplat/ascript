@@ -186,6 +186,8 @@ package parse {
             	skipIgnored();
             	var token:Token=new Token();
             	// examine the new character and see what we have...
+				var cc:String;
+				var nc:String;
 				switch ( ch ) {
 					case '{':
 						token.type = TokenType.LBRACE;
@@ -234,8 +236,8 @@ package parse {
 						break;
 					case '-':
 					case '+':
-						var cc:String=ch;
-						var nc:String=this.str.charAt(ptr);
+						cc=ch;
+						nc=this.str.charAt(ptr);
 						//trace(nc);
 						if(nc=="="){
 							token.type = TokenType.Assign;
@@ -260,8 +262,10 @@ package parse {
 					case '*':
 					case '/':
 					case '%':
-						var cc:String=ch;
-						var nc:String=this.str.charAt(ptr);
+						
+						cc=ch;
+						
+						nc=this.str.charAt(ptr);
 						//trace(nc);
 						if(nc=="="){
 							token.type = TokenType.Assign;
@@ -278,7 +282,7 @@ package parse {
 						break;
 					
 					case '&':
-						var nc=this.str.charAt(ptr);
+						nc=this.str.charAt(ptr);
 						if(nc=="&"){
 							nextChar();
 							token.type = TokenType.LOP;
@@ -294,7 +298,7 @@ package parse {
 						}
 						break;
 					case '|':
-						var nc:String=this.str.charAt(ptr);
+						nc=this.str.charAt(ptr);
 						if(nc=="|"){
 							nextChar();
 							token.type = TokenType.LOP;

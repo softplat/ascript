@@ -27,7 +27,6 @@ http://ascript.softplat.com/
 
 package parser
 {
-	import flash.display.Stage;
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
 	
@@ -36,11 +35,11 @@ package parser
 	//注意事项，如果要用那个_super，仅限_super的类为动态的。
 	dynamic public class DY extends Proxy{
 		//
-		private var __rootnode:GenTree;
+		protected var __rootnode:GenTree;
 		private var _classname:String;
-		private var __vars:Object;//local_vars的堆栈顶
+		protected var __vars:Object;//local_vars的堆栈顶
 		private var local_vars:Array;//局部变量堆栈
-		private var __API:Object;
+		protected var __API:Object;
 		private var __super:Object;
 		function DY(clname:String="__DY",explist:Array=null){
 			_classname=clname;
@@ -51,7 +50,8 @@ package parser
 			
 			__API._root=Script._root;
 			//__API.stage=Script._root.stage;
-			for(var o in Script.defaults){
+			for(var o:String in Script.defaults){
+				
 				__API[o]=Script.defaults[o];
 			}
 			__super={};
@@ -71,7 +71,7 @@ package parser
 		public function set _super(value:Object):void
 		{
 			
-			for(var o in __super){
+			for(var o:String in __super){
 				value[o]=__super[o];
 			}
 			__super = value;
@@ -109,7 +109,7 @@ package parser
 			return __rootnode;
 		}
 		//以下是对所有的有语意的语法进行翻译
-		private function init(explist:Array){
+		private function init(explist:Array):void{
 			for each(var o:GNode in _rootnode.fields){
 				if(o.nodeType!=GNodeType.FunDecl){
 					executeFiledDec(o);
@@ -118,9 +118,9 @@ package parser
 			if(__rootnode.motheds[_classname]){
 				call(_classname,explist);
 			}
-			return null;
+			//return null;
 		}
-		private function executeFiledDec(node:GNode){
+		private function executeFiledDec(node:GNode):void{
 			if(node.nodeType==GNodeType.AssignStm){
 				//assign的第一个节点为vardecal?
 				this[node.childs[0].token.word]=getValue(node.childs[1]);
@@ -128,32 +128,31 @@ package parser
 				this[node.word]=0;//默认为0
 			}
 		}
-		var isret:Boolean=false;//函数调用是否返回
-		var jumpstates:Array=[0];//循环的当前状态
+		protected var isret:Boolean=false;//函数调用是否返回
+		protected var jumpstates:Array=[0];//循环的当前状态
 		//0.不跳出，1，跳出，2跳到下一次
 		private function get  jumpstate():int{
 			return jumpstates[jumpstates.length-1];
 		}
-		private function set  jumpstate(v:int){
+		private function set  jumpstate(v:int):void{
 			jumpstates[jumpstates.length-1]=v;
 		}
-		public function pushstate(){
+		public function pushstate():void{
 			jumpstates.push(0);
 		}
-		public function popstate(){
+		public function popstate():void{
 			jumpstates.pop();
 		}
-		public function call(funcname:String,explist:Array){
-			var re=null;
+		public function call(funcname:String,explist:Array):*{
+			var re:*=null;
 			try{
 				var node:GNode=__rootnode.motheds[funcname];
 				if(node && node.nodeType==GNodeType.FunDecl){
-					var tisret=isret;
+					var tisret:Boolean=isret;
 					isret=false;
 					local_vars.push({});
 					__vars=local_vars[local_vars.length-1];
-					var node:GNode=_rootnode.motheds[funcname];
-					
+					//node=_rootnode.motheds[funcname];
 					re=FunCall(node,explist);
 					
 					local_vars.pop();
@@ -174,7 +173,7 @@ package parser
 			return re;
 		}
 		
-		private function FunCall(node:GNode,explist:Array) {
+		private function FunCall(node:GNode,explist:Array):* {
 			//trace(classname+">stlist="+tok.word);
 			if(node.nodeType==GNodeType.FunDecl){
 				var param:GNode=node.childs[0];
@@ -182,12 +181,11 @@ package parser
 					__vars[param.childs[i].word]=explist[i];//处理局部变量
 				}
 				var stms:GNode=node.childs[1];
-				var re=executeST(node.childs[1]);//复合语句
-				return re;
+				return executeST(node.childs[1]);//复合语句
 			}
 		}
 		
-		public function executeST(node:GNode){
+		public function executeST(node:GNode):*{
 			/*static public var AssignStm=7;//语句
 			static public var IfElseStm=8;//语句
 			static public var WhileStm=9;//语句
@@ -195,16 +193,13 @@ package parser
 			static public var ReturnStm=11;//语句
 			VarDecl//
 			*/
+			var i:int;
+			var re:*;
+			var arr:Array;
+			var obj:Object;
 			if(node.nodeType==GNodeType.Stms){
-				for(var i:int=0;i<node.childs.length;i++){
-					//try{
-						var re:Object=executeST(node.childs[i]);
-						
-					//}catch(e:Error){
-						//e.message+="提示:"+(node.childs[i] as GNode).toString();
-						//throw(e);
-						//trace(e);
-					//}
+				for(i=0;i<node.childs.length;i++){
+					re=executeST(node.childs[i]);
 					if(isret){
 						return re;
 					}
@@ -233,9 +228,9 @@ package parser
 					trace((node.childs[1] as GNode).toString());
 				}
 				*/
-				var rvalue=getValue(node.childs[1]);//右侧取值
+				var rvalue:*=getValue(node.childs[1]);//右侧取值
 				
-				var lv=lvarr[0];
+				var lv:*=lvarr[0];
 				if(node.word=="="){
 					lv[lvarr[lvarr.length-1]]=rvalue;
 					//lv[lvarr[lvarr.length-1]]=rvalue;
@@ -257,12 +252,12 @@ package parser
 			}else if(node.nodeType==GNodeType.FunCall){
 				getValue(node);
 			}else if(node.nodeType==GNodeType.IfElseStm){
-				for(var i:int=0;i<node.childs.length;i++){
+				for(i=0;i<node.childs.length;i++){
 					var cn:GNode=node.childs[i];
 					if(cn.nodeType==GNodeType.ELSEIF){
-						var exp=getValue(cn.childs[0]);
+						exp=getValue(cn.childs[0]);
 						if(exp){
-							var re=executeST(cn.childs[1]);
+							re=executeST(cn.childs[1]);
 							if(isret){
 								return re;
 							}
@@ -273,7 +268,8 @@ package parser
 						}
 					}else{
 						//stlist
-						var re=executeST(cn);
+						
+						re=executeST(cn);
 						if(isret){
 							return re;
 						}
@@ -283,14 +279,14 @@ package parser
 					}
 				}
 			}else if(node.nodeType==GNodeType.SWITCH){
-				var exp=getValue(node.childs[0]);
-				var jump=false;
-				var isbreak=true;
-				for(var i:int=1;i<node.childs.length;i++){
+				var exp:*=getValue(node.childs[0]);
+				var jump:Boolean=false;
+				var isbreak:Boolean=true;
+				for(i=1;i<node.childs.length;i++){
 					if(jump){
 						break;
 					}
-					var cn:GNode=node.childs[i];
+					cn=node.childs[i];
 					
 					if(cn.nodeType==GNodeType.CASE){
 						//trace(cn.childs[0].toString());
@@ -305,7 +301,7 @@ package parser
 									break;
 								}else{
 									
-									var re=executeST(cn.childs[j]);
+									re=executeST(cn.childs[j]);
 									if(isret){
 										return re;
 									}
@@ -314,12 +310,12 @@ package parser
 						}
 					}else if(cn.nodeType==GNodeType.DEFAULT){
 						//stlist
-						for(var j:int=0;j<cn.childs.length;j++){
+						for(j=0;j<cn.childs.length;j++){
 							if((cn.childs[j] as GNode).nodeType==GNodeType.BREAK){
 								jump=true;
 								break;
 							}else{
-								var re=executeST(cn.childs[j]);
+								re=executeST(cn.childs[j]);
 								if(isret){
 									return re;
 								}
@@ -328,7 +324,8 @@ package parser
 					}
 				}
 			}else if(node.nodeType==GNodeType.INCREMENT){
-				var arr:Array=getLValue(node.childs[0]);
+				
+				arr=getLValue(node.childs[0]);
 				if(arr.length==2){
 					if(node.word=="++"){
 						re=arr[0][arr[1]];
@@ -341,7 +338,7 @@ package parser
 					}
 				}
 			}else if(node.nodeType==GNodeType.PREINCREMENT){
-				var arr:Array=getLValue(node.childs[0]);
+				arr=getLValue(node.childs[0]);
 				if(arr.length==2){
 					if(node.word=="++"){
 						arr[0][arr[1]]+=1;
@@ -353,12 +350,12 @@ package parser
 				}
 			}else if(node.nodeType==GNodeType.VarDecl){
 				//除了全局初始化声明，其他的都是局部变量
-				var scope=__vars || this;
+				var scope:*=__vars || this;
 				scope[node.word]=0;//默认为0
 			}else if(node.nodeType==GNodeType.ReturnStm){
 				if(node.childs.length>0){
 					
-					var re=getValue(node.childs[0]);
+					re=getValue(node.childs[0]);
 					isret=true;
 					return re;
 				}else{
@@ -375,7 +372,7 @@ package parser
 				pushstate();
 				try{
 					while(getValue(node.childs[0])){
-						var re=executeST(node.childs[1]);
+						re=executeST(node.childs[1]);
 						if(isret){
 							return re;
 						}
@@ -388,12 +385,13 @@ package parser
 					popstate();
 				}
 			}else if(node.nodeType==GNodeType.ForStm){
-				var exp1=executeST(node.childs[0]);
+				//var exp1=
+				executeST(node.childs[0]);
 				//var exp2;
 				pushstate();
 				try{
 					while(getValue(node.childs[1])){
-						var re=executeST(node.childs[3]);//进行for内部的处理
+						re=executeST(node.childs[3]);//进行for内部的处理
 						if(isret){
 							return re;
 						}
@@ -407,14 +405,15 @@ package parser
 					popstate();
 				}
 			}else if(node.nodeType==GNodeType.ForInStm){
-				var varname=node.childs[0].word;
-				var obj:Object=getValue(node.childs[1]);
+				var varname:String=node.childs[0].word;
+				
+				obj=getValue(node.childs[1]);
 				//
 				pushstate();
 				try{
-					for(var o in obj){
+					for(var o:String in obj){
 						__vars[varname]=o;
-						var re=executeST(node.childs[2]);//
+						re=executeST(node.childs[2]);//
 						if(isret){
 							return re;
 						}
@@ -427,13 +426,13 @@ package parser
 					popstate();
 				}
 			}else if(node.nodeType==GNodeType.ForEACHStm){
-				var varname=node.childs[0].word;
-				var obj:Object=getValue(node.childs[1]);
+				varname=node.childs[0].word;
+				obj=getValue(node.childs[1]);
 				pushstate();
 				try{
-					for each(var o in obj){
-						__vars[varname]=o;
-						var re=executeST(node.childs[2]);//
+					for each(var oo:* in obj){
+						__vars[varname]=oo;
+						re=executeST(node.childs[2]);//
 						if(isret){
 							return re;
 						}
@@ -448,7 +447,7 @@ package parser
 			}
 			else if(node.nodeType==GNodeType.importStm){
 				//
-				var arr:Array=node.word.split(".");
+				arr=node.word.split(".");
 				__API[arr[arr.length-1]]=Script.getDef(node.word);
 			}
 		}
@@ -467,7 +466,7 @@ package parser
 				var vname:String=var_arr[0];
 				
 				//
-				var scope=null;
+				var scope:*=null;
 				var bottem:int=0;
 				if(vname=="this"){
 					scope=this;
@@ -494,19 +493,19 @@ package parser
 					scope=__vars;
 				}
 				//作用域有效
-				var v=scope;
+				var v:*=scope;
 				
 				if(v){
 					if(var_arr.length<bottem){
 						return [v];
 					}
-					for(var i:int=bottem;i<var_arr.length-1;i++){
+					for(i=bottem;i<var_arr.length-1;i++){
 						if(v){
 							v=v[var_arr[i]];
 						}
 					}
 					if(v!=undefined){
-						var lastv=var_arr[var_arr.length-1];
+						var lastv:String=var_arr[var_arr.length-1];
 						//v[lastv]==undefined && 
 						return [v,lastv];
 					}
@@ -515,13 +514,13 @@ package parser
 			return [];
 		}
 		
-		public function getValue(node:GNode){
+		public function getValue(node:GNode):*{
 			switch(node.nodeType){
 				case GNodeType.IDENT:
 					//自身是
 					if(node.childs.length==1){
 						//快速通道,优化目的
-						var vname=node.childs[0].word;
+						var vname:String=node.childs[0].word;
 						if(__vars && __vars[vname]!=undefined){
 							return __vars[vname];
 						}else if(this[vname]!=undefined){
@@ -558,8 +557,8 @@ package parser
 					return node.value;
 					break;
 				case GNodeType.MOP:
-					var v1=getValue(node.childs[0]);
-					var v2=getValue(node.childs[1]);
+					var v1:*=getValue(node.childs[0]);
+					var v2:*=getValue(node.childs[1]);
 					if(node.word=="+"){
 						return v1+v2;
 					}else if(node.word=="-"){
@@ -581,7 +580,7 @@ package parser
 					}
 					break;
 				case GNodeType.LOP:
-					var v1=getValue(node.childs[0]);
+					v1=getValue(node.childs[0]);
 					if(node.word=="||" || node.word=="or"){
 						//var v2=;
 						if(v1){
@@ -597,18 +596,18 @@ package parser
 					break;
 				case GNodeType.LOPNot:
 					//逻辑非
-					var v1=getValue(node.childs[0]);
+					v1=getValue(node.childs[0]);
 					return !v1;
 					break;
 				case GNodeType.Nagtive:
 					//-
-					var v1=getValue(node.childs[0]);
+					v1=getValue(node.childs[0]);
 					return -v1;
 					break;
 				case GNodeType.INCREMENT:
-					var arr:Array=getLValue(node.childs[0]);
+					arr=getLValue(node.childs[0]);
 					if(arr.length==2){
-						var temp=arr[0][arr[1]];
+						var temp:*=arr[0][arr[1]];
 						if(node.word=="++"){
 							arr[0][arr[1]]=arr[0][arr[1]]+1;
 						}else if(node.word=="--"){
@@ -622,7 +621,7 @@ package parser
 					break
 				case GNodeType.PREINCREMENT:
 					//----------------------
-					var arr:Array=getLValue(node.childs[0]);
+					arr=getLValue(node.childs[0]);
 					if(arr.length==2){
 						if(node.word=="++"){
 							arr[0][arr[1]]=arr[0][arr[1]]+1;
@@ -636,8 +635,8 @@ package parser
 					executeError("解释出错=递增操作符未设置值");
 					break;
 				case GNodeType.COP:
-					var v1=getValue(node.childs[0]);
-					var v2=getValue(node.childs[1]);
+					v1=getValue(node.childs[0]);
+					v2=getValue(node.childs[1]);
 					if(node.word==">"){
 						return v1>v2;
 					}else if(node.word=="<"){
@@ -661,7 +660,7 @@ package parser
 					}else if(node.word=="in"){
 						return v1 in v2;
 					}else if(node.word=="instanceof"){
-						return v1 instanceof v2;
+						return v1 is v2;
 					}
 					break;
 				case GNodeType.newArray:
@@ -669,7 +668,7 @@ package parser
 					if(node.childs.length>0){
 						var exps:GNode=node.childs[0];
 						var explist:Array=[];
-						for(var i=0;i<exps.childs.length;i++){
+						for(i=0;i<exps.childs.length;i++){
 							explist[i]=getValue(exps.childs[i]);
 						}
 						return explist;
@@ -679,7 +678,7 @@ package parser
 					//新数组
 					if(node.childs.length>0){
 						var newobj:Object={};
-						for(var i=0;i<node.childs.length;i+=2){
+						for(i=0;i<node.childs.length;i+=2){
 							newobj[node.childs[i].word]=getValue(node.childs[i+1]);
 						}
 						return newobj;
@@ -696,15 +695,15 @@ package parser
 						c=Script.getDef(identnode.word) as Class;
 					}
 					
-					var explist:Array=[];
+					explist=[];
 					if(node.childs.length==2){
 						var param:GNode=node.childs[1];
 						for(var i:int=0;i<param.childs.length;i++){
 							explist[i]=getValue(param.childs[i]);
 						}
 					}
+					var re:*;
 					if(c){
-						var re;
 						return newLocalClass(c,explist);
 					}else{
 						if(GenTree.hasScript(identnode.word)){
@@ -722,22 +721,22 @@ package parser
 					//2个子节点，一个是函数名，一个是参数
 					var ident:GNode=node.childs[0];//
 					var vname_arr:Array=[];
-					for(var i:int=0;i<ident.childs.length;i++){
+					for(i=0;i<ident.childs.length;i++){
 						if(ident.childs[i].nodeType==GNodeType.Index){
 							vname_arr[i]=getValue(ident.childs[i].childs[0]);
 						}else{
 							vname_arr[i]=ident.childs[i].word;
 						}
 					}
-					var explist:Array=[];
+					explist=[];
 					if(node.childs.length==2){
-						var param:GNode=node.childs[1];
-						for(var i:int=0;i<param.childs.length;i++){
+						param=node.childs[1];
+						for(i=0;i<param.childs.length;i++){
 							explist[i]=getValue(param.childs[i]);
 						}
 						
 					}
-					var vname:String=vname_arr[0];
+					vname=vname_arr[0];
 					if(vname_arr.length==1){
 						//API部分
 						if(vname=="trace" || vname=="output"){//API
@@ -760,7 +759,7 @@ package parser
 									if(__API[vname]){
 										return callLocalFunc(__API,vname,explist);
 									}
-									for each(var o in __API){
+									for each(var o:* in __API){
 										if(o.hasOwnProperty(vname)){//本地方法
 											return callLocalFunc(o,vname,explist);
 										}
@@ -776,7 +775,7 @@ package parser
 						return;
 					}
 					/**/
-					var scope=__vars;
+					var scope:*=__vars;
 					var bottom:int=0;
 					if(vname=="this"){
 						scope=this;
@@ -787,7 +786,7 @@ package parser
 							scope=this;
 							if(scope[vname]==undefined){
 								//看看API是否存在相关的方法
-								var loadstatic=true;
+								var loadstatic:Boolean=true;
 								if(__API[vname]!=undefined){
 									scope=__API[vname];
 									bottom=1;
@@ -809,7 +808,7 @@ package parser
 					if(scope==null){
 						executeError("未定义方法="+vname);
 					}
-					for(var i:int=bottom;i<vname_arr.length-1;i++){
+					for(i=bottom;i<vname_arr.length-1;i++){
 						scope=scope[vname_arr[i]];
 					}
 					/*if(scope==null){
@@ -829,14 +828,14 @@ package parser
 					executeError("解析出错=未知的语句");
 			}
 		}
-		private function callLocalFunc(scope:Object,vname:String,explist:Array){
+		protected function callLocalFunc(scope:Object,vname:String,explist:Array):*{
 			if(scope[vname] is Function){
 				return (scope[vname] as Function).apply(scope,explist);
 			}
 			throw new Error(scope+"不存在"+vname+"方法");
 		}
-		private function newLocalClass(c:Class,explist:Array){//vname,
-			var re;
+		protected function newLocalClass(c:Class,explist:Array):*{//vname,
+			var re:*;
 			
 			switch (explist.length){
 				case 0:
@@ -871,7 +870,7 @@ package parser
 			}
 			return re;
 		}
-		private function executeError(str:String){
+		protected function executeError(str:String):void{
 			
 			Script.Debug.log("executeError="+str);
 		}

@@ -73,7 +73,7 @@ package util.col
 				//if(obj[s])
 				arr.splice(obj[s], 1);
 				element.splice(obj[s], 1);
-				for (var i = obj[s];i < arr.length; i++) {
+				for (var i:int = obj[s];i < arr.length; i++) {
 					obj[arr[i]] -= 1;
 				}
 				delete obj[s];
