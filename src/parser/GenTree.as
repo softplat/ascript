@@ -523,7 +523,7 @@ package parser
 						index=tindex-1;
 						nextToken();
 						cnode=EXP();
-						if(tok.type==TokenType.Semicolon){
+						if(tok && tok.type==TokenType.Semicolon){
 							match(TokenType.Semicolon);
 						}
 					}
@@ -629,7 +629,7 @@ package parser
 				case TokenType.LOPNot:
 				case TokenType.INCREMENT:
 					tnode=Term();
-					if(tok.type==TokenType.LOP){
+					if(tok && tok.type==TokenType.LOP){
 						cnode=new GNode(GNodeType.LOP,tok);	
 						match(TokenType.LOP);
 						cnode.addChild(tnode);
@@ -740,7 +740,7 @@ package parser
 				case TokenType.LOPNot:
 				case TokenType.INCREMENT:
 					tnode=facter();
-					if(tok.type==TokenType.COP){
+					if(tok && tok.type==TokenType.COP){
 						cnode=new GNode(GNodeType.COP,tok);	
 						match(TokenType.COP);
 						cnode.addChild(tnode);
@@ -753,7 +753,7 @@ package parser
 				case TokenType.MOP:
 					if(tok.word=="-"){
 						tnode=facter();
-						if(tok.type==TokenType.COP){
+						if(tok && tok.type==TokenType.COP){
 							cnode=new GNode(GNodeType.COP,tok);	
 							match(TokenType.COP);
 							cnode.addChild(tnode);
@@ -785,7 +785,7 @@ package parser
 			var stack:Array=[];//符号堆栈
 			nodearr.push(gene());
 			var i:int;
-			if(tok.type==TokenType.MOP){
+			if(tok && tok.type==TokenType.MOP){
 				while(tok.type==TokenType.MOP){
 					cnode=new GNode(GNodeType.MOP,tok);
 					var pri:int=priority(cnode);

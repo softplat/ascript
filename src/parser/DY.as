@@ -40,7 +40,7 @@ package parser
 		protected var __vars:Object;//local_vars的堆栈顶
 		private var local_vars:Array;//局部变量堆栈
 		protected var __API:Object;
-		private var __super:Object;
+		protected var __super:Object;
 		function DY(clname:String="__DY",explist:Array=null){
 			_classname=clname;
 			__rootnode=GenTree.Branch[clname];
@@ -58,7 +58,7 @@ package parser
 			init(explist||[]);//初始化字段，调用构造函数
 		}
 		//
-
+		[inline]
 		public function get _super():Object
 		{
 			return __super;
@@ -79,7 +79,7 @@ package parser
 
 		public function toString():String{
 			return this._classname;
-		} 
+		}
 		override flash_proxy function callProperty(methodName:*, ... args):* {
 			if(methodName is QName){
 				methodName=(methodName as QName).localName;
@@ -99,12 +99,15 @@ package parser
 			executeError(_classname+">SUPER "+__super+">不存在此方法="+methodName);
 			return null;
 		}
+		[inline]
 		override flash_proxy function getProperty(name:*):* {
 			return __super[name];
 		}
+		[inline]
 		override flash_proxy function setProperty(name:*, value:*):void {
 			__super[name] = value;
 		}
+		[inline]
 		public function get _rootnode():GenTree{
 			return __rootnode;
 		}
@@ -131,15 +134,19 @@ package parser
 		protected var isret:Boolean=false;//函数调用是否返回
 		protected var jumpstates:Array=[0];//循环的当前状态
 		//0.不跳出，1，跳出，2跳到下一次
+		[inline]
 		private function get  jumpstate():int{
 			return jumpstates[jumpstates.length-1];
 		}
+		[inline]
 		private function set  jumpstate(v:int):void{
 			jumpstates[jumpstates.length-1]=v;
 		}
+		[inline]
 		public function pushstate():void{
 			jumpstates.push(0);
 		}
+		[inline]
 		public function popstate():void{
 			jumpstates.pop();
 		}
@@ -172,7 +179,7 @@ package parser
 			}
 			return re;
 		}
-		
+		[inline]
 		private function FunCall(node:GNode,explist:Array):* {
 			//trace(classname+">stlist="+tok.word);
 			if(node.nodeType==GNodeType.FunDecl){
@@ -184,7 +191,6 @@ package parser
 				return executeST(node.childs[1]);//复合语句
 			}
 		}
-		
 		public function executeST(node:GNode):*{
 			/*static public var AssignStm=7;//语句
 			static public var IfElseStm=8;//语句
@@ -451,7 +457,7 @@ package parser
 				__API[arr[arr.length-1]]=Script.getDef(node.word);
 			}
 		}
-		private function getLValue(node:GNode):Array{
+		protected function getLValue(node:GNode):Array{
 			if(node.gtype== GNodeType.IDENT){
 				//取得左值，其实就是取得scope,vname
 				var var_arr:Array=[];

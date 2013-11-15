@@ -53,6 +53,7 @@ package parser
 		}
 			
 		//常量会有
+		[inline]
 		public function get value():*{
 			if(token){
 				return token.value;
@@ -64,6 +65,7 @@ package parser
 			return token.line;
 		}
 		//
+		[inline]
 		public function get nodeType():int{
 			return gtype;
 		}

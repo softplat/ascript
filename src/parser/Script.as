@@ -241,6 +241,7 @@ package parser
 					lex=new Lex(code);
 					cnode=____globalclass.declares(lex);
 					Lex.treecach[code]=cnode;
+					//trace(cnode);
 				}
 				return __globaldy.executeST(cnode);
 			}
