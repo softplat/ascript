@@ -608,7 +608,7 @@ package parser
 						}
 						return cnode;
 					}
-					if(tok.type==TokenType.Semicolon){
+					if(tok && tok.type==TokenType.Semicolon){
 						match(TokenType.Semicolon);
 					}
 					return tnode;
