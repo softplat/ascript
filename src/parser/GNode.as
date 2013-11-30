@@ -29,7 +29,7 @@ package parser
 {
 	import parse.Token;
 
-	public class GNode
+	final public class GNode
 	{
 		public var childs:Vector.<GNode> = new Vector.<GNode>;
 		public var token:Token;

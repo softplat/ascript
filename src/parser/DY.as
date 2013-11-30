@@ -31,7 +31,7 @@ package parser
 	import flash.utils.flash_proxy;
 	
 	import parse.ProxyFunc;
-
+	
 	//注意事项，如果要用那个_super，仅限_super的类为动态的。
 	dynamic public class DY extends Proxy{
 		//
@@ -46,7 +46,6 @@ package parser
 			__rootnode=GenTree.Branch[clname];
 			local_vars=[];
 			__API=GenTree.Branch[clname].API;
-			
 			
 			__API._root=Script._root;
 			//__API.stage=Script._root.stage;
@@ -76,7 +75,7 @@ package parser
 			}
 			__super = value;
 		}
-
+		
 		public function toString():String{
 			return this._classname;
 		}
@@ -89,7 +88,7 @@ package parser
 				/*
 				var f:Function=ProxyFunc.getAFunc(this,methodName);
 				if(f){
-					return f.apply(this,args);
+				return f.apply(this,args);
 				}*/
 			}
 			if(__super[methodName] is Function){
@@ -224,36 +223,32 @@ package parser
 						lvarr=[this,node.childs[0].word];
 					}
 				}else{
-					lvarr=getLValue(lnode);
-					if(lvarr.length!=2){
+					getLValue(lnode);
+					if(lvalue.key==null){
 						throw new Error("左值取值失败="+lnode.toString());
 					}
 				}
-				//
-				/*if(lvarr[1]=="index"){
-					trace((node.childs[1] as GNode).toString());
-				}
-				*/
 				var rvalue:*=getValue(node.childs[1]);//右侧取值
-				
 				var lv:*=lvarr[0];
-				if(node.word=="="){
-					lv[lvarr[lvarr.length-1]]=rvalue;
-					//lv[lvarr[lvarr.length-1]]=rvalue;
-				}else if(node.word=="+="){
-					lv[lvarr[lvarr.length-1]]+=rvalue;
-					
-				}else if(node.word=="-="){
-					lv[lvarr[lvarr.length-1]]-=rvalue;
-					
-				}else if(node.word=="*="){
-					lv[lvarr[lvarr.length-1]]*=rvalue;
-					
-				}else if(node.word=="/="){
-					lv[lvarr[lvarr.length-1]]/=rvalue;
-					
-				}else if(node.word=="%="){
-					lv[lvarr[lvarr.length-1]]%=rvalue;
+				switch(node.word){
+					case "=":
+						lv[lvarr[lvarr.length-1]]=rvalue;
+						break;
+					case "+=":
+						lv[lvarr[lvarr.length-1]]+=rvalue;
+						break;
+					case "-=":
+						lv[lvarr[lvarr.length-1]]-=rvalue;
+						break;
+					case "*=":
+						lv[lvarr[lvarr.length-1]]*=rvalue;
+						break;
+					case "/=":
+						lv[lvarr[lvarr.length-1]]/=rvalue;
+						break;
+					case "%=":
+						lv[lvarr[lvarr.length-1]]%=rvalue;
+						break;
 				}
 			}else if(node.nodeType==GNodeType.FunCall){
 				getValue(node);
@@ -273,8 +268,6 @@ package parser
 							break;
 						}
 					}else{
-						//stlist
-						
 						re=executeST(cn);
 						if(isret){
 							return re;
@@ -330,30 +323,9 @@ package parser
 					}
 				}
 			}else if(node.nodeType==GNodeType.INCREMENT){
-				
-				arr=getLValue(node.childs[0]);
-				if(arr.length==2){
-					if(node.word=="++"){
-						re=arr[0][arr[1]];
-						arr[0][arr[1]]+=1;
-						return re;
-					}else if(node.word=="--"){
-						re=arr[0][arr[1]];
-						arr[0][arr[1]]-=1;
-						return re;
-					}
-				}
+				return onINCREMENT(node);
 			}else if(node.nodeType==GNodeType.PREINCREMENT){
-				arr=getLValue(node.childs[0]);
-				if(arr.length==2){
-					if(node.word=="++"){
-						arr[0][arr[1]]+=1;
-						return arr[0][arr[1]];
-					}else if(node.word=="--"){
-						arr[0][arr[1]]-=1;
-						return arr[0][arr[1]];
-					}
-				}
+				return onPREINCREMENT(node);
 			}else if(node.nodeType==GNodeType.VarDecl){
 				//除了全局初始化声明，其他的都是局部变量
 				var scope:*=__vars || this;
@@ -372,7 +344,7 @@ package parser
 				//应该跳过下面的执行。
 				jumpstate=2;
 			}else if(node.nodeType==GNodeType.BREAK){
-					//应该跳出循环
+				//应该跳出循环
 				jumpstate=1;
 			}else if(node.nodeType==GNodeType.WhileStm){
 				pushstate();
@@ -457,7 +429,45 @@ package parser
 				__API[arr[arr.length-1]]=Script.getDef(node.word);
 			}
 		}
-		protected function getLValue(node:GNode):Array{
+		[inline]
+		protected function onINCREMENT(node:GNode):Number{
+			getLValue(node.childs[0]);
+			if(lvalue.key!=null){
+				var re:Number;
+				if(node.word=="++"){
+					re=lvalue.scope[lvalue.key];
+					lvalue.scope[lvalue.key]+=1;
+					return re;
+				}else if(node.word=="--"){
+					re=lvalue.scope[lvalue.key];
+					lvalue.scope[lvalue.key]-=1;
+					return re;
+				}else{
+					executeError("解释出错=递增操作符未设置值");
+				}
+			}
+			return 0;	
+		}
+		[inline]
+		protected function onPREINCREMENT(node:GNode):Number{
+			getLValue(node.childs[0]);
+			if(lvalue.key!=null){
+				if(node.word=="++"){
+					lvalue.scope[lvalue.key]+=1;
+					return lvalue.scope[lvalue.key];
+				}else if(node.word=="--"){
+					lvalue.scope[lvalue.key]-=1;
+					return lvalue.scope[lvalue.key];
+				}else{
+					executeError("解释出错=递增操作符未设置值");
+				}
+				return lvalue.scope[lvalue.key];
+			}
+			return 0;
+		}
+		protected function getLValue(node:GNode):void{
+			lvalue.scope=null;
+			lvalue.key=null;
 			if(node.gtype== GNodeType.IDENT){
 				//取得左值，其实就是取得scope,vname
 				var var_arr:Array=[];
@@ -487,7 +497,7 @@ package parser
 					}else if(_rootnode.motheds[vname]){
 						scope=this;
 					}else if(__API[vname]){
-							scope=__API;
+						scope=__API;
 					}else if(Script._root && Script._root.loaderInfo.applicationDomain.hasDefinition(vname)){
 						scope=Script.getDef(vname);// as Class;
 						bottem=1;
@@ -503,7 +513,7 @@ package parser
 				
 				if(v){
 					if(var_arr.length<bottem){
-						return [v];
+						lvalue.scope=v;
 					}
 					for(i=bottem;i<var_arr.length-1;i++){
 						if(v){
@@ -513,13 +523,13 @@ package parser
 					if(v!=undefined){
 						var lastv:String=var_arr[var_arr.length-1];
 						//v[lastv]==undefined && 
-						return [v,lastv];
+						lvalue.scope=v;
+						lvalue.key=lastv;
 					}
 				}
 			}
-			return [];
 		}
-		
+		protected var lvalue:LValue=new LValue;
 		public function getValue(node:GNode):*{
 			switch(node.nodeType){
 				case GNodeType.IDENT:
@@ -541,19 +551,19 @@ package parser
 							return Script.__globaldy[vname];
 						}
 					}
-					var arr:Array=getLValue(node);
+					getLValue(node);
 					
-					if(arr.length==2){
+					if(lvalue.key!=null){
 						//没有属性
-						if(arr[0][arr[1]]!=undefined){
-							return arr[0][arr[1]];
+						if(lvalue.scope[lvalue.key]!=undefined){
+							return lvalue.scope[lvalue.key];
 						}
 						//可能是脚本方法
-						if(arr[0] is DY && arr[0]._rootnode.motheds[arr[1]]){
-							return ProxyFunc.getAFunc(arr[0],arr[1]);
+						if(lvalue.scope is DY && lvalue.scope._rootnode.motheds[lvalue.key]){
+							return ProxyFunc.getAFunc(lvalue.scope as DY,lvalue.key);
 						}
-					}else if(arr.length==1){
-						return arr[0];
+					}else if(lvalue.scope){
+						return lvalue.scope;
 					}
 					return undefined;//不存在这个变量啊
 					break;
@@ -563,30 +573,10 @@ package parser
 					return node.value;
 					break;
 				case GNodeType.MOP:
-					var v1:*=getValue(node.childs[0]);
-					var v2:*=getValue(node.childs[1]);
-					if(node.word=="+"){
-						return v1+v2;
-					}else if(node.word=="-"){
-						return v1-v2;
-					}else if(node.word=="/"){
-						return v1/v2;
-					}else if(node.word=="*"){
-						return v1*v2;
-					}else if(node.word=="%"){
-						return v1%v2;
-					}else if(node.word=="|"){
-						return uint(v1)|uint(v2);
-					}else if(node.word=="&"){
-						return uint(v1)&uint(v2);
-					}else if(node.word=="<<"){
-						return uint(v1)<<uint(v2);
-					}else if(node.word==">>"){
-						return uint(v1)>>uint(v2);
-					}
+					return onMOP(node);
 					break;
 				case GNodeType.LOP:
-					v1=getValue(node.childs[0]);
+					var v1=getValue(node.childs[0]);
 					if(node.word=="||" || node.word=="or"){
 						//var v2=;
 						if(v1){
@@ -611,63 +601,14 @@ package parser
 					return -v1;
 					break;
 				case GNodeType.INCREMENT:
-					arr=getLValue(node.childs[0]);
-					if(arr.length==2){
-						var temp:*=arr[0][arr[1]];
-						if(node.word=="++"){
-							arr[0][arr[1]]=arr[0][arr[1]]+1;
-						}else if(node.word=="--"){
-							arr[0][arr[1]]=arr[0][arr[1]]-1;
-						}else{
-							executeError("解释出错=递增操作符未设置值");
-						}
-						return temp;
-					}
-					executeError("解释出错=递增操作符未设置值");
+					return onINCREMENT(node);
 					break
 				case GNodeType.PREINCREMENT:
 					//----------------------
-					arr=getLValue(node.childs[0]);
-					if(arr.length==2){
-						if(node.word=="++"){
-							arr[0][arr[1]]=arr[0][arr[1]]+1;
-						}else if(node.word=="--"){
-							arr[0][arr[1]]=arr[0][arr[1]]-1;
-						}else{
-							executeError("解释出错=递增操作符未设置值");
-						}
-						return arr[0][arr[1]];
-					}
-					executeError("解释出错=递增操作符未设置值");
+					return onPREINCREMENT(node);
 					break;
 				case GNodeType.COP:
-					v1=getValue(node.childs[0]);
-					v2=getValue(node.childs[1]);
-					if(node.word==">"){
-						return v1>v2;
-					}else if(node.word=="<"){
-						return v1<v2;
-					}else if(node.word=="<="){
-						return v1<=v2;
-					}else if(node.word=="=="){
-						return v1==v2;
-					}else if(node.word==">="){
-						return v1>=v2;
-					}else if(node.word=="!="){
-						return v1!=v2;
-					}else if(node.word=="is"){
-						return v1 is v2;
-					}else if(node.word=="as"){
-						if(v1 is v2){
-							return v1;
-						}else{
-							return null;
-						}
-					}else if(node.word=="in"){
-						return v1 in v2;
-					}else if(node.word=="instanceof"){
-						return v1 is v2;
-					}
+					return onCOP(node);
 					break;
 				case GNodeType.newArray:
 					//新数组
@@ -818,7 +759,7 @@ package parser
 						scope=scope[vname_arr[i]];
 					}
 					/*if(scope==null){
-						executeError("未定义方法="+vname);
+					executeError("未定义方法="+vname);
 					}*/
 					var lastvname:String=vname_arr[vname_arr.length-1];
 					//trace(scope,scope is Iterpret);
@@ -832,6 +773,61 @@ package parser
 					break;
 				default:
 					executeError("解析出错=未知的语句");
+			}
+		}
+		[inline]
+		protected function onMOP(node:GNode):*{
+			var v1:Number=getValue(node.childs[0]);
+			var v2:Number=getValue(node.childs[1]);
+			switch(node.word){
+				case "+":
+					return v1+v2;
+				case "-":
+					return v1-v2;
+				case "*":
+					return v1*v2;
+				case "/":
+					return v1/v2;
+				case "%":
+					return v1%v2;
+				case "|":
+					return v1|v2;
+				case "&":
+					return v1&v2;
+				case "<<":
+					return v1<<v2;
+				case ">>":
+					return v1>>v2;
+			}
+		}
+		[inline]
+		protected function onCOP(node:GNode):*{
+			var v1:*=getValue(node.childs[0]);
+			var v2:*=getValue(node.childs[1]);
+			switch(node.word){
+				case ">":
+					return v1>v2;
+				case "<":
+					return v1<v2;
+				case "<=":
+					return v1<=v2;
+				case ">=":
+					return v1>=v2;
+				case "==":
+					return v1==v2;
+				case "!=":
+					return v1!=v2;
+				case "is":
+				case "instanceof":
+					return v1 is v2;
+				case "as":
+					if(v1 is v2){
+						return v1;
+					}else{
+						return null;
+					}
+				case "in":
+					return v1 in v2;
 			}
 		}
 		protected function callLocalFunc(scope:Object,vname:String,explist:Array):*{
