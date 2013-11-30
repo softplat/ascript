@@ -21,7 +21,6 @@ package parser
 			funcs[GNodeType.newClass]=onnewClass;
 			funcs[GNodeType.newObject]=onnewObject;
 			funcs[GNodeType.FunCall]=onFunCall;
-			
 			super(clname,explist);
 			
 		}
@@ -42,19 +41,19 @@ package parser
 					return this;
 				}
 			}
-			var arr:Array=getLValue(node);
+			getLValue(node);
 			
-			if(arr.length==2){
+			if(lvalue.key!=null){
 				//没有属性
-				if(arr[0][arr[1]]!=undefined){
-					return arr[0][arr[1]];
+				if(lvalue.scope[lvalue.key]!=undefined){
+					return lvalue.scope[lvalue.key];
 				}
 				//可能是脚本方法
-				if(arr[0] is DY && arr[0]._rootnode.motheds[arr[1]]){
-					return ProxyFunc.getAFunc(arr[0],arr[1]);
+				if(lvalue.scope is DY && lvalue.scope._rootnode.motheds[lvalue.key]){
+					return ProxyFunc.getAFunc(lvalue.scope as DY,lvalue.key);
 				}
-			}else if(arr.length==1){
-				return arr[0];
+			}else if(lvalue.scope){
+				return lvalue.scope;
 			}
 			return undefined;//不存在这个变量啊
 		}
@@ -65,32 +64,6 @@ package parser
 		[inline]
 		private function onConstID(node:GNode):*{
 			return node.value;
-		}
-		[inline]
-		private function onMOP(node:GNode):*{
-			var v1:Number=getValue(node.childs[0]);
-			var v2:Number=getValue(node.childs[1]);
-			
-			if(node.word=="+"){
-				return v1+v2;
-			}else if(node.word=="-"){
-				return v1-v2;
-			}else if(node.word=="/"){
-				return v1/v2;
-			}else if(node.word=="*"){
-				return v1*v2;
-			}else if(node.word=="%"){
-				return v1%v2;
-			}else if(node.word=="|"){
-				return uint(v1)|uint(v2);
-			}else if(node.word=="&"){
-				return uint(v1)&uint(v2);
-			}else if(node.word=="<<"){
-				return uint(v1)<<uint(v2);
-			}else if(node.word==">>"){
-				return uint(v1)>>uint(v2);
-			}
-			//return node.opFunc(v1,v2);
 		}
 		[inline]
 		private function onLOP(node:GNode):*{
@@ -116,69 +89,6 @@ package parser
 		[inline]
 		private function onNagtive(node:GNode):Number{
 			return -getValue(node.childs[0]);
-		}
-		[inline]
-		private function onINCREMENT(node:GNode):Number{
-			var arr:Array=getLValue(node.childs[0]);
-			if(arr.length==2){
-				var temp:Number=arr[0][arr[1]];
-				if(node.word=="++"){
-					arr[0][arr[1]]=arr[0][arr[1]]+1;
-				}else if(node.word=="--"){
-					arr[0][arr[1]]=arr[0][arr[1]]-1;
-				}else{
-					executeError("解释出错=递增操作符未设置值");
-				}
-				return temp;
-			}
-			return 0;	
-		}
-		[inline]
-		private function onPREINCREMENT(node:GNode):Number{
-			var arr:Array=getLValue(node.childs[0]);
-			if(arr.length==2){
-				if(node.word=="++"){
-					arr[0][arr[1]]=arr[0][arr[1]]+1;
-				}else if(node.word=="--"){
-					arr[0][arr[1]]=arr[0][arr[1]]-1;
-				}else{
-					executeError("解释出错=递增操作符未设置值");
-				}
-				return arr[0][arr[1]];
-			}
-			//executeError("解释出错=递增操作符未设置值");
-			return 0;
-		}
-		[inline]
-		private function onCOP(node:GNode):*{
-			var v1:*=getValue(node.childs[0]);
-			var v2:*=getValue(node.childs[1]);
-			if(node.word==">"){
-				return v1>v2;
-			}else if(node.word=="<"){
-				return v1<v2;
-			}else if(node.word=="<="){
-				return v1<=v2;
-			}else if(node.word=="=="){
-				return v1==v2;
-			}else if(node.word==">="){
-				return v1>=v2;
-			}else if(node.word=="!="){
-				return v1!=v2;
-			}else if(node.word=="is"){
-				return v1 is v2;
-			}else if(node.word=="as"){
-				if(v1 is v2){
-					return v1;
-				}else{
-					return null;
-				}
-			}else if(node.word=="in"){
-				return v1 in v2;
-			}else if(node.word=="instanceof"){
-				return v1 is v2;
-			}
-			//return node.opFunc(v1,v2);
 		}
 		[inline]
 		private function onnewArray(node:GNode):Array{
@@ -254,43 +164,32 @@ package parser
 				for(i=0;i<param.childs.length;i++){
 					explist[i]=getValue(param.childs[i]);
 				}
-				
 			}
 			var vname:String=vname_arr[0];
 			if(vname_arr.length==1){
-				//API部分
-				if(vname=="trace" || vname=="output"){//API
-					if(Script.output){
-						Script.output(explist.join(","));
+				if(__super[vname] is Function){
+					return callLocalFunc(__super,vname,explist);
+				}else if(__API[vname] is Function){
+					return (__API[vname] as Function).apply(null,explist);
+					//
+				}else if(__rootnode.motheds[vname]==undefined && Script.__globaldy){
+					
+					if(Script.__globaldy._rootnode.motheds[vname]==undefined){
+						//自身不存在该方法
+						if(__API[vname]){
+							return callLocalFunc(__API,vname,explist);
+						}
+						for each(var o:* in __API){
+							if(o.hasOwnProperty(vname)){//本地方法
+								return callLocalFunc(o,vname,explist);
+							}
+						}
+						trace("类和全局都不存在该脚本方法="+vname+",是否缺少imoprt?");
 					}else{
-						trace(explist.join(","));
+						return Script.__globaldy.call(vname,explist);
 					}
 				}else{
-					
-					if(__super[vname] is Function){
-						return callLocalFunc(__super,vname,explist);
-					}else if(__API[vname] is Function){
-						return (__API[vname] as Function).apply(null,explist);
-						//
-					}else if(__rootnode.motheds[vname]==undefined && Script.__globaldy){
-						
-						if(Script.__globaldy._rootnode.motheds[vname]==undefined){
-							//自身不存在该方法
-							if(__API[vname]){
-								return callLocalFunc(__API,vname,explist);
-							}
-							for each(var o:* in __API){
-								if(o.hasOwnProperty(vname)){//本地方法
-									return callLocalFunc(o,vname,explist);
-								}
-							}
-							trace("类和全局都不存在该脚本方法="+vname+",是否缺少imoprt?");
-						}else{
-							return Script.__globaldy.call(vname,explist);
-						}
-					}else{
-						return call(vname,explist);
-					}
+					return call(vname,explist);
 				}
 				return;
 			}
