@@ -214,13 +214,14 @@ package parser
 				}
 			}else if(node.nodeType==GNodeType.AssignStm){
 				var lnode:GNode=node.childs[0];//左侧节点
-				var lvarr:Array;
 				if(lnode.nodeType==GNodeType.VarDecl){
 					//变量声明
 					if(__vars){
-						lvarr=[__vars,node.childs[0].word];
+						lvalue.scope=__vars;
+						lvalue.key=node.childs[0].word;
 					}else{
-						lvarr=[this,node.childs[0].word];
+						lvalue.scope=this;
+						lvalue.key=node.childs[0].word;
 					}
 				}else{
 					getLValue(lnode);
@@ -229,25 +230,25 @@ package parser
 					}
 				}
 				var rvalue:*=getValue(node.childs[1]);//右侧取值
-				var lv:*=lvarr[0];
+				//var lv:*=lvarr[0];
 				switch(node.word){
 					case "=":
-						lv[lvarr[lvarr.length-1]]=rvalue;
+						lvalue.scope[lvalue.key]=rvalue;
 						break;
 					case "+=":
-						lv[lvarr[lvarr.length-1]]+=rvalue;
+						lvalue.scope[lvalue.key]+=rvalue;
 						break;
 					case "-=":
-						lv[lvarr[lvarr.length-1]]-=rvalue;
+						lvalue.scope[lvalue.key]-=rvalue;
 						break;
 					case "*=":
-						lv[lvarr[lvarr.length-1]]*=rvalue;
+						lvalue.scope[lvalue.key]*=rvalue;
 						break;
 					case "/=":
-						lv[lvarr[lvarr.length-1]]/=rvalue;
+						lvalue.scope[lvalue.key]/=rvalue;
 						break;
 					case "%=":
-						lv[lvarr[lvarr.length-1]]%=rvalue;
+						lvalue.scope[lvalue.key]%=rvalue;
 						break;
 				}
 			}else if(node.nodeType==GNodeType.FunCall){
