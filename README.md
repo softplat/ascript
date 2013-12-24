@@ -44,5 +44,5 @@ Ascript交流QQ群
 
 Wiki
 =======		
-http://code.google.com/p/ascript-as3/w/list
+https://github.com/softplat/ascript/wiki
 
