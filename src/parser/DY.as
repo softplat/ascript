@@ -778,8 +778,8 @@ package parser
 		}
 		[inline]
 		protected function onMOP(node:GNode):*{
-			var v1:Number=getValue(node.childs[0]);
-			var v2:Number=getValue(node.childs[1]);
+			var v1:*=getValue(node.childs[0]);
+			var v2:*=getValue(node.childs[1]);
 			switch(node.word){
 				case "+":
 					return v1+v2;
