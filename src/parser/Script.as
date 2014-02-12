@@ -105,7 +105,6 @@ package parser
 			__globaldy=New(____globalclass.name);
 			vm=__globaldy;
 			//再初始化一个基本类
-			newScript("__DY");//基本类
 			//
 			/*if(!code){
 				trace(<![CDATA[
