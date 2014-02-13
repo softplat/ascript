@@ -154,6 +154,9 @@ package parser
 			try{
 				var node:GNode=__rootnode.motheds[funcname];
 				if(node && node.nodeType==GNodeType.FunDecl){
+					if(funcname=="init"){
+						trace(1);
+					}
 					var tisret:Boolean=isret;
 					isret=false;
 					local_vars.push({});
@@ -214,19 +217,21 @@ package parser
 				}
 			}else if(node.nodeType==GNodeType.AssignStm){
 				var lnode:GNode=node.childs[0];//左侧节点
-				var lvalue:LValue=new LValue();
+				var tlvalue:LValue=new LValue();
 				if(lnode.nodeType==GNodeType.VarDecl){
 					//变量声明
 					if(__vars){
-						lvalue.scope=__vars;
-						lvalue.key=node.childs[0].word;
+						tlvalue.scope=__vars;
+						tlvalue.key=node.childs[0].word;
 					}else{
-						lvalue.scope=this;
-						lvalue.key=node.childs[0].word;
+						tlvalue.scope=this;
+						tlvalue.key=node.childs[0].word;
 					}
 				}else{
 					getLValue(lnode);
-					if(lvalue.key==null){
+					tlvalue.scope=lvalue.scope;
+					tlvalue.key=lvalue.key;
+					if(tlvalue.key==null){
 						throw new Error("左值取值失败="+lnode.toString());
 					}
 				}
@@ -234,22 +239,22 @@ package parser
 				//var lv:*=lvarr[0];
 				switch(node.word){
 					case "=":
-						lvalue.scope[lvalue.key]=rvalue;
+						tlvalue.scope[tlvalue.key]=rvalue;
 						break;
 					case "+=":
-						lvalue.scope[lvalue.key]+=rvalue;
+						tlvalue.scope[tlvalue.key]+=rvalue;
 						break;
 					case "-=":
-						lvalue.scope[lvalue.key]-=rvalue;
+						tlvalue.scope[tlvalue.key]-=rvalue;
 						break;
 					case "*=":
-						lvalue.scope[lvalue.key]*=rvalue;
+						tlvalue.scope[tlvalue.key]*=rvalue;
 						break;
 					case "/=":
-						lvalue.scope[lvalue.key]/=rvalue;
+						tlvalue.scope[tlvalue.key]/=rvalue;
 						break;
 					case "%=":
-						lvalue.scope[lvalue.key]%=rvalue;
+						tlvalue.scope[tlvalue.key]%=rvalue;
 						break;
 				}
 			}else if(node.nodeType==GNodeType.FunCall){
