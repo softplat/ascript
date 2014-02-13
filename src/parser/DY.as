@@ -214,6 +214,7 @@ package parser
 				}
 			}else if(node.nodeType==GNodeType.AssignStm){
 				var lnode:GNode=node.childs[0];//左侧节点
+				var lvalue:LValue=new LValue();
 				if(lnode.nodeType==GNodeType.VarDecl){
 					//变量声明
 					if(__vars){
