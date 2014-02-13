@@ -1,7 +1,7 @@
 AScript是什么
 =======
 
-Ascript是一种解释型脚本语言，用ActionScript3.0实现，并且能和ActionScript3.0无缝结合，无需编译，即可执行。   
+Ascript是一种解释型脚本语言，用ActionScript3.0实现，并且能和ActionScript3.0无缝结合，无需编译，即可执行大部分as3内置类和自定义类。   
 
 AScript能做什么
 =======   
@@ -36,9 +36,18 @@ Ascript支持基于组件的，我们可以将一些已经存在的高级组件�
 
   * 易用。其语法和as3相似，可以用as3的语法进行程序编写。
 
-  * 与as3无缝集成，就是说可以在脚本中调用和创建任意的as3编写的类库和内置API。
+  * 与as3无缝集成，就是说可以在脚本中调用和创建任意的as3编写的类库和内置API。    
+        
+Ascript示例
+=======
+页游项目控制台（马上推出）      
+ios项目的热更新（马上推出）     
+
+Ascript交流QQ群
+=======
+264282406       
 
 Wiki
 =======		
-http://code.google.com/p/ascript-as3/w/list
+https://github.com/softplat/ascript/wiki
 
