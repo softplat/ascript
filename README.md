@@ -55,7 +55,7 @@ Ascript支持基于组件的，我们可以将一些已经存在的高级组件�
 下表是一个简单的对各个版本的推荐：
 
 
-<table border="1">
+<table border="0">
 <tr  align="center">
 <td><b>版本</b></td>
 <td><b>稳定版</b></td>
