@@ -36,7 +36,58 @@ Ascript支持基于组件的，我们可以将一些已经存在的高级组件�
 
   * 易用。其语法和as3相似，可以用as3的语法进行程序编写。
 
-  * 与as3无缝集成，就是说可以在脚本中调用和创建任意的as3编写的类库和内置API。    
+  * 与as3无缝集成，就是说可以在脚本中调用和创建任意的as3编写的类库和内置API。 
+
+下载及版本说明
+=======
+如果您想对Ascript进行二次开发，以便Ascript更加适应您的项目，建议您通过<font color="#ff0000">**Fork**</font>的方式，fork操作会把Ascript项目克隆一份到您的代码仓库，您可以对您代码仓库里的Ascript项目随意修改。
+
+如果您不熟悉git的操作形式，也可以点击首页右侧的<font color="#ff0000">**Download Zip**</font>按钮，下载一份代码压缩包，代码的版本与您所选择的分支版本有关。
+
+![](https://raw.github.com/wiki/softplat/ascript/imgs/2.png)
+
+- tags下为稳定版本，以版本号作为分支名。
+
+- release以及dev为前缀的版本为开发版本，不能保证程序的正常运行，不建议您直接检出使用。
+
+- master分支为最新版本，可能是alhpa版或beta版，也可能和稳定版一样。
+
+下表是一个简单的对各个版本的推荐：
+
+
+<table border="1">
+<tr  align="center">
+<td><b>版本</b></td>
+<td><b>稳定版</b></td>
+<td><b>开发版</b></td>
+<td><b>master分支</b></td>
+</tr>
+<tr  align="center">
+<td>开发者</td>
+<td>推荐</td>
+<td>推荐</td>
+<td>推荐</td>
+</tr>
+<tr  align="center">
+<td>使用者</td>
+<td>推荐</td>
+<td>不推荐</td>
+<td>不推荐</td>
+</tr>
+<tr  align="center">
+<td>学习者</td>
+<td>推荐</td>
+<td>不推荐</td>
+<td>推荐</td>
+</tr>
+</table>
+
+
+由于git的特性，使得github的使用者可以在不同的版本分支之间自由切换。切换版本分支可以参考下图：
+
+![](https://raw.github.com/wiki/softplat/ascript/imgs/1.png)
+
+不同版本的说明请参考[ChangeLog](wiki/changelog)
         
 Ascript示例
 =======
