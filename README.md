@@ -87,7 +87,7 @@ Ascript支持基于组件的，我们可以将一些已经存在的高级组件�
 
 ![](https://raw.github.com/wiki/softplat/ascript/imgs/1.png)
 
-不同版本的说明请参考[ChangeLog](wiki/changelog)
+不同版本的说明请参考[ChangeLog](https://github.com/softplat/ascript/wiki/changelog)
         
 Ascript示例
 =======
