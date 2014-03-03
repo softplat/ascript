@@ -46,7 +46,7 @@ Ascript支持基于组件的，我们可以将一些已经存在的高级组件�
 
 ![](https://raw.github.com/wiki/softplat/ascript/imgs/2.png)
 
-由于git的特性，使得github的使用者可以在不同的版本分支之间自由切换。切换版本分支可以参考下图：
+github的使用者可以在不同的版本分支之间自由切换。切换版本分支可以参考下图：
 
 ![](https://raw.github.com/wiki/softplat/ascript/imgs/1.png)
 
