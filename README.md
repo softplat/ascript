@@ -46,6 +46,10 @@ Ascript支持基于组件的，我们可以将一些已经存在的高级组件�
 
 ![](https://raw.github.com/wiki/softplat/ascript/imgs/2.png)
 
+由于git的特性，使得github的使用者可以在不同的版本分支之间自由切换。切换版本分支可以参考下图：
+
+![](https://raw.github.com/wiki/softplat/ascript/imgs/1.png)
+
 - tags下为稳定版本，以版本号作为分支名。
 
 - release以及dev为前缀的版本为开发版本，不能保证程序的正常运行，不建议您直接检出使用。
@@ -81,11 +85,6 @@ Ascript支持基于组件的，我们可以将一些已经存在的高级组件�
 <td>推荐</td>
 </tr>
 </table>
-
-
-由于git的特性，使得github的使用者可以在不同的版本分支之间自由切换。切换版本分支可以参考下图：
-
-![](https://raw.github.com/wiki/softplat/ascript/imgs/1.png)
 
 不同版本的说明请参考[ChangeLog](https://github.com/softplat/ascript/wiki/changelog)
         
