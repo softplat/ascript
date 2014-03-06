@@ -90,7 +90,9 @@ github的使用者可以在不同的版本分支之间自由切换。切换版�
         
 Ascript示例
 =======
-页游项目控制台（马上推出）      
+
+[Ascript控制台（用于通过Ascript动态执行主程序内的代码）](https://github.com/gt2005/GameUtilities/tree/master/GDebug)    
+      
 ios项目的热更新（马上推出）     
 
 Ascript交流QQ群
