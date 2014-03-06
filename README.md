@@ -97,7 +97,9 @@ ios项目的热更新（马上推出）
 
 Ascript交流QQ群
 =======
-264282406       
+QQ群：264282406
+       
+与我们联系请发送邮件到[ascript@softplat.com](mailto:ascript@softplat.com)
 
 Wiki
 =======		
