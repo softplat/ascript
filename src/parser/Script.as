@@ -96,7 +96,7 @@ package parser
          {
             ____globalclass = newScript("____globalclass");
          }
-         __globaldy = New(____globalclass.name);
+         __globaldy = New("____globalclass");
          vm = __globaldy;
 		 
 		 Script.addAPI("Number",Number);
@@ -119,7 +119,7 @@ package parser
          code = code.replace(/private /g, "");
          code = code.replace(/protected /g, "");
 		 code = code.replace(/override /g,"");
-         return new GenTree(code);
+         return GenTree.create(code);
       }
       
       public static function getFunc(funcname:String) : Function
@@ -142,7 +142,7 @@ package parser
       private static function newScript(_name:String) : *
       {
          var mycode:String = "class " + _name + "{}";
-         return new GenTree(mycode);
+         return GenTree.create(mycode);
       }
       
       public static function New(... args) : *
@@ -158,9 +158,9 @@ package parser
          }
          if(GenTree.hasScript(_name))
          {
-            return new parser.DY(_name,args);
+            return new parser.DY(GenTree.Branch[_name],args);
          }
-         return new parser.DY(_name,args);
+         return new parser.DY(GenTree.Branch[_name],args);
       }
       
       public static function declare(code:String, clname:String = "____globalclass") : *
@@ -179,7 +179,7 @@ package parser
       {
          var cnode:GNode = null;
          var lex:Lex = null;
-         if(Boolean(args) && args.length > 0)
+         if(args && args.length > 0)
          {
             code = "function __niming(args){return " + code + ";}";
             if(Lex.treecach[code])
@@ -319,7 +319,12 @@ package parser
          }
          return "\"" + s + "\"";
       }
-      
+      public static function getStaticFunc(clname:String, funcname:String) {
+		 if (GenTree.staticBranch[clname]) {
+			 return (GenTree.staticBranch[clname].instance as DY)[funcname];
+		 } 
+		 return null;
+	  }
       private static function encodeArr(ar:Array) : String
       {
          var str:String = "[";

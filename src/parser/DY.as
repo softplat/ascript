@@ -9,6 +9,7 @@ package parser
    {
        
       protected var __rootnode:parser.GenTree;
+	  protected var __static_rootnode:parser.GenTree;
       
       private var _classname:String;
       
@@ -26,16 +27,18 @@ package parser
       
       protected var lvalue:parser.LValue;
       
-      public function DY(clname:String = "__DY", explist:Array = null)
+      public function DY(rootTree:GenTree, explist:Array = null)
       {
          var o:* = null;
          this.jumpstates = [0];
          this.lvalue = new parser.LValue();
          super();
-         this._classname = clname;
-         this.__rootnode = parser.GenTree.Branch[clname];
+         this._classname = rootTree.name;
+         this.__rootnode = rootTree;
+		 __static_rootnode = parser.GenTree.staticBranch[_classname];
+		 
          this.local_vars = [];
-         this.__API = parser.GenTree.Branch[clname].API;
+         this.__API = __rootnode.API;
          this.__API._root = Script._root;
          this.__super = {};
          this.init(explist || []);
@@ -636,6 +639,7 @@ package parser
             scope = null;
             bottem = 0;
 			//
+			
             if(vname == "this")
             {
                scope = this;
@@ -656,6 +660,10 @@ package parser
             else if(this._rootnode.motheds[vname])
             {
                scope = this;
+            }else if(this.__static_rootnode && (this.__static_rootnode.motheds[vname] || this.__static_rootnode.fields[vname]))
+            {
+				//本类的静态方法,指向本类的静态实例
+               scope = __static_rootnode.instance;
             }
             else if(this.__API[vname])
             {
@@ -664,7 +672,12 @@ package parser
             else if(Script.__globaldy[vname])
             {
                scope = Script.__globaldy;
-            }else if(Boolean(Script._root) && Boolean(Script._root.loaderInfo.applicationDomain.hasDefinition(vname)))
+            }else if (parser.GenTree.staticBranch[vname]) {
+				//指向其他静态类
+				scope = parser.GenTree.staticBranch[vname].instance;
+				bottem = 1;
+			}
+			else if(Script._root && Boolean(Script._root.loaderInfo.applicationDomain.hasDefinition(vname)))
             {
                scope = Script.getDef(vname);
                bottem = 1;
@@ -839,7 +852,7 @@ package parser
                }
                if(parser.GenTree.hasScript(identnode.word))
                {
-                  re = new DY(identnode.word,explist);
+                  re = new DY(GenTree.Branch[identnode.word],explist);
                   trace("成功创建脚本类=" + identnode.word + "的实例");
                   return re;
                }

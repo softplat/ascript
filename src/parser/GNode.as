@@ -19,7 +19,7 @@ package parser
       
       public var word:String;
       
-      public var vis:String = "protected";
+      public var istatic:Boolean;
       
       public function GNode(n:int = -1, v:Token = null)
       {
@@ -85,7 +85,7 @@ package parser
             str = str + (" " + this.token.value);
             if(this.gtype == GNodeType.VarDecl || this.gtype == GNodeType.FunDecl)
             {
-               str = this.vis + " " + this.vartype + " " + str;
+               str = this.vartype + " " + str;
             }
          }
          str = levs[lev] + str + "\n";

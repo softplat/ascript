@@ -8,7 +8,8 @@ package parser
    public class GenTree
    {
       
-      public static var Branch:Object = {};
+      public static var Branch:Object = { };
+	  public static var staticBranch:Object = {};
        
       private var tok:Token;
       
@@ -28,13 +29,50 @@ package parser
       
       public var Package:String = "";
       
-      public function GenTree(code:String = null)
+	  public var instance:DY;
+	  static public function create(code:String = null):GenTree 
+	  {
+		  var A:GenTree = new GenTree();
+		  A.parse(code);
+		  //移除所有静态的字段到B里面
+		  var B:GenTree = new GenTree();
+		  B.name = A.name;
+		  var arr:Array = [];
+		  for(var n in A.motheds){
+			  if(A.motheds[n].istatic){
+				  B.motheds[n] = A.motheds[n];
+				  arr.push(n);
+			  }
+		  }
+		  for each (var n in arr) {
+			  delete A.motheds[n];
+		  }
+		  //
+		  arr = [];
+		  for(var n in A.fields){
+			  if(A.fields[n].istatic){
+				  B.fields[n] = A.fields[n];
+				  arr.push(n);
+			  }
+		  }
+		  for each (var n in arr) {
+			  delete A.fields[n];
+		  }
+		  
+		  B.instance = new DY(B);//创建一个静态类的实例
+		  staticBranch[B.name] = B;//静态类
+		  return A;
+	  }
+      public function GenTree()
       {
-         this.API = {};
+         this.API = {};//这个对象作为静态方法的代理
          this.imports = {};
          this.motheds = {};
          this.fields = {};
          super();
+	  }
+	  private function parse(code:String):void 
+	  {
          if(code)
          {
             this.lex = new Lex(code);
@@ -110,7 +148,7 @@ package parser
          str = str + "}\r";
          str = str + "}";
 		 
-         return str.replace(/protected/g,"");
+         return str;//.replace(/protected/g,"");
       }
       
       public function declares(_lex:Lex) : GNode
@@ -255,27 +293,14 @@ package parser
       {
          var cnode:GNode = null;
          var vis:String = null;
-         while(this.tok.type == TokenType.keyimport || this.tok.type == TokenType.keyvar || this.tok.type == TokenType.keyfunction || this.tok.type == TokenType.keypublic || this.tok.type == TokenType.keyprivate || this.tok.type == TokenType.keyprotected)
+         while (this.tok.type == TokenType.keyimport || this.tok.type == TokenType.keyvar ||
+		 this.tok.type == TokenType.keyfunction || this.tok.type == TokenType.keystatic)
          {
-            if(this.tok.type == TokenType.keyimport)
-            {
-               this.doimport();
-            }
-            else if(this.tok.type == TokenType.keyvar)
-            {
-               cnode = this.varst();
-               this.fields[cnode.name] = cnode;
-            }
-            else if(this.tok.type == TokenType.keyfunction)
-            {
-               cnode = this.func();
-               this.motheds[cnode.name] = cnode;
-            }
-            else
-            {
-               vis = this.tok.word;
+			 if(this.tok.type == TokenType.keystatic)
+            {//静态 =======
+				var istatic:Boolean = true;
                this.nextToken();
-               if(this.tok.type == TokenType.keyvar)
+			   if(this.tok.type == TokenType.keyvar)
                {
                   cnode = this.varst();
                   this.fields[cnode.name] = cnode;
@@ -285,8 +310,23 @@ package parser
                   cnode = this.func();
                   this.motheds[cnode.name] = cnode;
                }
-               cnode.vis = vis;
-            }
+			   cnode.istatic = istatic;
+            }else {				
+				if(this.tok.type == TokenType.keyimport)
+				{
+				   this.doimport();
+				}
+				else if(this.tok.type == TokenType.keyvar)
+				{
+				   cnode = this.varst();
+				   this.fields[cnode.name] = cnode;
+				}
+				else if(this.tok.type == TokenType.keyfunction)
+				{
+				   cnode = this.func();
+				   this.motheds[cnode.name] = cnode;
+				}
+			}
          }
       }
       
