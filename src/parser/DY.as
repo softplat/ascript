@@ -4,6 +4,7 @@ package parser
    import flash.utils.Proxy;
    import flash.utils.flash_proxy;
    import parse.ProxyFunc;
+   import parse.Token;
    
    public dynamic class DY extends Proxy
    {
@@ -19,14 +20,18 @@ package parser
       
       protected var __API:Object;
       
-      protected var __super:Object;
-      
+      protected var __object:Object;
+	  protected var __super:Object;
+	  
       protected var isret:Boolean = false;
       
       protected var jumpstates:Array;
       
       protected var lvalue:parser.LValue;
       
+	  public function get base():*{
+		  return __super;
+	  }
       public function DY(rootTree:GenTree, explist:Array = null)
       {
          var o:* = null;
@@ -40,23 +45,9 @@ package parser
          this.local_vars = [];
          this.__API = __rootnode.API;
          this.__API._root = Script._root;
-         this.__super = {};
+		 
+         this.__object = { };
          this.init(explist || []);
-      }
-      
-      public function get _super() : Object
-      {
-         return this.__super;
-      }
-      
-      public function set _super(value:Object) : void
-      {
-         var o:* = null;
-         for(o in this.__super)
-         {
-            value[o] = this.__super[o];
-         }
-         this.__super = value;
       }
       
       public function toString() : String
@@ -70,30 +61,49 @@ package parser
          {
             methodName = (methodName as QName).localName;
          }
+		 
          if(this.__rootnode.motheds[methodName])
          {
             return this.call(methodName,args);
          }
-         if(this.__super[methodName] is Function)
+         if(this.__object[methodName] is Function)
+         {
+            return this.callLocalFunc(this.__object,methodName,args);
+         }
+		 //hasOwnProperty
+		 if(this.__super && this.__super[methodName] is Function)
          {
             return this.callLocalFunc(this.__super,methodName,args);
          }
-         this.executeError(this._classname + ">SUPER " + this.__super + ">不存在此方法=" + methodName);
+         this.executeError(this._classname + ">SUPER " + this.__object + ">不存在此方法=" + methodName);
          return null;
       }
       
       override flash_proxy function getProperty(vname:*) : *
       {
-		  if(this._rootnode.motheds[vname] != undefined)
+		  var na = vname.localName;
+		  if(this._rootnode.motheds[na] != undefined)
 		  {
-			 return ProxyFunc.getAFunc(this,vname);//返回函数
+			 return ProxyFunc.getAFunc(this,na);//返回函数
 		  }
-         return this.__super[vname];
+		  var re = this.__object[na];
+		  if(re==undefined){
+			  
+		  }
+		  if(this.__super){
+			  if(this.__super is DY){
+				  re = __super[na];
+				  
+			  }else if(__super.hasOwnProperty(na)){
+				  re= __super[na];
+			  }
+		  }
+         return re;
       }
       
       override flash_proxy function setProperty(name:*, value:*) : void
       {
-         this.__super[name] = value;
+         this.__object[name] = value;
       }
       
       public function get _rootnode() : parser.GenTree
@@ -104,6 +114,32 @@ package parser
       private function init(explist:Array) : void
       {
          var o:GNode = null;
+		 
+		 if (__rootnode.baseClass) {//存在父类
+			if (!__rootnode.callSuper) {
+				var identnode:Token = __rootnode.baseClass;// GenTree.Branch[__rootnode.baseClass.word].motheds[__rootnode.baseClass];
+				//
+			   var arrr = identnode.word.split(".");
+			   var c = null;
+			   if(this.__API[arrr[arrr.length - 1]])
+			   {
+				  c = this.__API[arrr[arrr.length - 1]];
+			   }
+			   else if(Script._root.loaderInfo.applicationDomain.hasDefinition(identnode.word))
+			   {
+				  c = Script.getDef(identnode.word) as Class;
+			   }
+			   if(c)
+			   {
+				  __super= this.newLocalClass(c,[]);
+			   }
+			   if(parser.GenTree.hasScript(identnode.word))
+			   {
+				  __super = new DY(GenTree.Branch[identnode.word],[]);
+				  trace("成功创建脚本类=" + identnode.word + "的实例");
+			   }
+			}
+		 }
          for each(o in this._rootnode.fields)
          {
             if(o.nodeType != GNodeType.FunDecl)
@@ -111,6 +147,8 @@ package parser
                this.executeFiledDec(o);
             }
          }
+		 
+		 
          if(this.__rootnode.motheds[this._classname])
          {
             this.call(this._classname,explist);
@@ -176,9 +214,9 @@ package parser
                }
                this.isret = tisret;
             }
-            else if(this.__super[funcname] is Function)
+            else if(this.__object[funcname] is Function)
             {
-               re = this.callLocalFunc(this.__super,funcname,explist);
+               re = this.callLocalFunc(this.__object,funcname,explist);
             }
             else
             {
@@ -645,15 +683,45 @@ package parser
                scope = this;
                bottem = 1;
             }
-            else if(vname == "_super")
+            else if(vname == "super")
             {
-               scope = this;
+               scope = this.__super;//有2种情况,一种是调用构造函数
+			   if (var_arr.length == 2 && node.childs[1].nodeType == GNodeType.FunCall) {
+				   var identnode:Token = __rootnode.baseClass;// GenTree.Branch[__rootnode.baseClass.word].motheds[__rootnode.baseClass];
+					//
+				   var arrr = identnode.word.split(".");
+				   var c = null;
+				   if(this.__API[arrr[arrr.length - 1]])
+				   {
+					  c = this.__API[arrr[arrr.length - 1]];
+				   }
+				   else if(Script._root.loaderInfo.applicationDomain.hasDefinition(identnode.word))
+				   {
+					  c = Script.getDef(identnode.word) as Class;
+				   }
+				   if(c)
+				   {
+					  __super= this.newLocalClass(c,var_arr[1]);
+				   }
+				   if(parser.GenTree.hasScript(identnode.word))
+				   {
+					  __super = new DY(GenTree.Branch[identnode.word],var_arr[1]);
+					  trace("成功创建脚本类=" + identnode.word + "的实例");
+				   }
+				   return;//特殊情况，直接赋值
+			   } 
+				   
+			   bottem = 1;
             }
             else if(Boolean(this.__vars) && this.__vars[vname] != undefined)
             {
                scope = this.__vars;
             }
-            else if(this.__super.hasOwnProperty(vname) || (getQualifiedClassName(this.__super)=="Object" && this.__super[vname] != undefined))
+            else if(this.__object.hasOwnProperty(vname) || (getQualifiedClassName(this.__object)=="Object" && this.__object[vname] != undefined))
+            {
+               scope = this.__object;
+            }
+			else if(this.__super!=null && (__super.hasOwnProperty(vname) || (this.__super is DY && (this.__super as DY)._rootnode.motheds[vname])))
             {
                scope = this.__super;
             }
@@ -910,6 +978,9 @@ package parser
                return v1 != v2;
             case "is":
             case "instanceof":
+				if(v1 is DY && v2 is DY){
+					//这里有一些脚本类的判断可以做=======
+				}
                return v1 is v2;
             case "as":
                if(v1 is v2)

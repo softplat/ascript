@@ -42,7 +42,7 @@ package parse
       public static var keynew:int = 19;
       
       public static var keyextends:int = 20;
-      
+	  
       public static var keypackage:int = 42;
       
       public static var keypublic:int = 44;

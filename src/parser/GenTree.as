@@ -1,5 +1,6 @@
 package parser
 {
+   import air.update.descriptors.ConfigurationDescriptor;
    import flash.utils.getDefinitionByName;
    import parse.Token;
    import parse.Lex;
@@ -28,6 +29,9 @@ package parser
       public var fields:Object;
       
       public var Package:String = "";
+	  //构造函数里面存在super么。。。
+	  public var baseClass:Token;
+	  public var callSuper:Boolean=false;
       
 	  public var instance:DY;
 	  static public function create(code:String = null):GenTree 
@@ -278,6 +282,7 @@ package parser
                if(this.tok.type == TokenType.keyextends)
                {
                   this.match(TokenType.keyextends);
+				  this.baseClass = this.tok;
                   this.match(TokenType.ident);
                }
                this.match(TokenType.LBRACE);
@@ -339,7 +344,9 @@ package parser
                this.match(TokenType.keyfunction);
                cnode = new GNode(GNodeType.FunDecl,this.tok);
                cnode.vartype = "void";
+			   __callsuper = false;
                this.match(TokenType.ident);
+			   
                this.match(TokenType.LParent);
                cnode.addChild(this.ParamList());
                this.match(TokenType.RParent);
@@ -350,6 +357,10 @@ package parser
                   this.match(this.tok.type);
                }
                cnode.addChild(this.stlist());
+			   
+			   if(this.tok.word=="super" &&　__callsuper){//构造函数内有调用super
+				   callSuper = true;
+			   }
                return cnode;
             default:
                this.error();
@@ -1006,7 +1017,7 @@ package parser
          }
          return null;
       }
-      
+      private var __callsuper:Boolean = false;
       private function IDENT() : GNode
       {
          var tnode:GNode = null;
@@ -1017,8 +1028,13 @@ package parser
                cnode = new GNode(GNodeType.IDENT);
                tnode = new GNode(GNodeType.VarID,this.tok);
                cnode.addChild(tnode);
+			   var first = this.tok.word;
+			   //
                this.match(TokenType.ident);
-               while(this.tok.type == TokenType.LBRACKET || this.tok.type == TokenType.DOT || TokenType.LParent)
+			   if(tnode.word=="super" && this.tok.type ==TokenType.LParent){
+				   __callsuper = true;
+			   }
+               while(true)//this.tok.type == TokenType.LBRACKET || this.tok.type == TokenType.DOT || this.tok.type ==TokenType.LParent
                {
 				  if(this.tok.type == TokenType.LParent)
 				  {
