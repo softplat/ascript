@@ -88,16 +88,16 @@ package parser
 		  }
 		  var re = this.__object[na];
 		  if(re==undefined){
-			  
-		  }
-		  if(this.__super){
-			  if(this.__super is DY){
-				  re = __super[na];
-				  
-			  }else if(__super.hasOwnProperty(na)){
-				  re= __super[na];
+			  if(this.__super){
+				  if(this.__super is DY){
+					  re = __super[na];
+					  
+				  }else if(__super.hasOwnProperty(na)){
+					  re= __super[na];
+				  }
 			  }
 		  }
+		  
          return re;
       }
       
@@ -719,7 +719,7 @@ package parser
             }
             else if(this.__object.hasOwnProperty(vname) || (getQualifiedClassName(this.__object)=="Object" && this.__object[vname] != undefined))
             {
-               scope = this.__object;
+               scope = this;
             }
 			else if(this.__super!=null && (__super.hasOwnProperty(vname) || (this.__super is DY && (this.__super as DY)._rootnode.motheds[vname])))
             {
@@ -769,7 +769,7 @@ package parser
 					  if (v is Function) {
 						 if ( var_arr[i] is Array) {
 							if (scope is DY) {
-								v = (v as Function).call(scope, var_arr[i]);
+								v = (v as Function).apply(null, var_arr[i]);
 							}else{
 								v=(v as Function).apply(scope,var_arr[i])		
 							}
