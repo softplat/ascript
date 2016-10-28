@@ -342,7 +342,8 @@ package parser
          {
             case TokenType.keyfunction:
                this.match(TokenType.keyfunction);
-               cnode = new GNode(GNodeType.FunDecl,this.tok);
+               cnode = new GNode(GNodeType.FunDecl, this.tok);
+			   var funcname = this.tok.word;
                cnode.vartype = "void";
 			   __callsuper = false;
                this.match(TokenType.ident);
@@ -358,7 +359,7 @@ package parser
                }
                cnode.addChild(this.stlist());
 			   
-			   if(this.tok.word=="super" &&　__callsuper){//构造函数内有调用super
+			   if(funcname==this.name &&　__callsuper){//构造函数内有调用super
 				   callSuper = true;
 			   }
                return cnode;
