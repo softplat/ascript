@@ -443,7 +443,7 @@ package parser
 			   //
                tnode.addChild(this.stlist());
                cnode.addChild(tnode);
-               while(this.tok.type == TokenType.keyelse)
+               while(this.tok && this.tok.type == TokenType.keyelse)
                {
                   this.match(TokenType.keyelse);
                   if(this.tok.type == TokenType.keyif)
