@@ -676,13 +676,12 @@ package parser
             }
             vname = var_arr[0];
             scope = null;
-            bottem = 0;
 			//
 			
             if(vname == "this")
             {
                scope = this;
-               bottem = 1;
+               var_arr.shift();;
             }
             else if(vname == "super")
             {
@@ -712,7 +711,7 @@ package parser
 				   return;//特殊情况，直接赋值
 			   } 
 				   
-			   bottem = 1;
+			   var_arr.shift();
             }
             else if(Boolean(this.__vars) && this.__vars[vname] != undefined)
             {
@@ -744,12 +743,12 @@ package parser
             }else if (parser.GenTree.staticBranch[vname]) {
 				//指向其他静态类
 				scope = parser.GenTree.staticBranch[vname].instance;
-				bottem = 1;
+				var_arr.shift();
 			}
 			else if(Script._root && Boolean(Script._root.loaderInfo.applicationDomain.hasDefinition(vname)))
             {
                scope = Script.getDef(vname);
-               bottem = 1;
+              var_arr.shift();
             }
             if(!scope)
             {
@@ -759,11 +758,7 @@ package parser
 			
             if(v)
             {
-               if(var_arr.length < bottem)
-               {
-                  this.lvalue.scope = v;
-               }
-               for(i = bottem; i < var_arr.length - 1; i++)
+               for(i = 0; i < var_arr.length - 1; i++)
                {
                   if(v)
                   {
@@ -790,11 +785,14 @@ package parser
 					this.lvalue.key = var_arr[var_arr.length - 2];
 					this.lvalue.params = var_arr[var_arr.length - 1];  
 					 
-				  }else {
+				  }else if(i<var_arr.length){
+					 
 					lastv = var_arr[var_arr.length - 1];
 					this.lvalue.scope = v;
 					this.lvalue.key = lastv;
 					this.lvalue.params = null;
+				  }else {
+					  this.lvalue.scope = v;
 				  }
                }
             }

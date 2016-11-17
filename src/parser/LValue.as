@@ -12,7 +12,8 @@ package parser
          super();
       }
 	  public function get Value():*{
-		  var vl = scope[key];
+		  
+		  var vl = (key==null)?scope:scope[key];
 		  if (vl is Function) {
 			 if (params != null) {
 				return vl.apply(scope, params); 
