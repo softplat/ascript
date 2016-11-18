@@ -298,8 +298,8 @@ package parser
       {
          var cnode:GNode = null;
          var vis:String = null;
-         while (this.tok && (this.tok.type == TokenType.keyimport || this.tok.type == TokenType.keyvar ||
-		 this.tok.type == TokenType.keyfunction || this.tok.type == TokenType.keystatic))
+         while (this.tok.type == TokenType.keyimport || this.tok.type == TokenType.keyvar ||
+		 this.tok.type == TokenType.keyfunction || this.tok.type == TokenType.keystatic)
          {
 			 if(this.tok.type == TokenType.keystatic)
             {//静态 =======

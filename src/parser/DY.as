@@ -86,24 +86,29 @@ package parser
 		  {
 			 return ProxyFunc.getAFunc(this,na);//返回函数
 		  }
-		  var re = this.__object[na];
-		  if(re==undefined){
-			  if(this.__super){
-				  if(this.__super is DY){
-					  re = __super[na];
-					  
-				  }else if(__super.hasOwnProperty(na)){
-					  re= __super[na];
-				  }
-			  }
+		  
+		  if (__rootnode.fields[na]) {
+			  return this.__object[na];
 		  }
 		  
-         return re;
+		  if(this.__super){
+			  if(this.__super is DY){
+				  return __super[na];
+				  
+			  }else if(__super.hasOwnProperty(na)){
+				  return __super[na];
+			  }
+		  }
+         return undefined;
       }
       
       override flash_proxy function setProperty(name:*, value:*) : void
       {
-         this.__object[name] = value;
+		 if(__rootnode.fields[name]) {
+			this.__object[name] = value;
+			return;
+		 }
+		 this.__super[name] = value;
       }
       
       public function get _rootnode() : parser.GenTree
@@ -159,11 +164,11 @@ package parser
       {
          if(node.nodeType == GNodeType.AssignStm)
          {
-            this[node.childs[0].token.word] = this.getValue(node.childs[1]);
+            this.__object[node.childs[0].token.word] = this.getValue(node.childs[1]);
          }
          else if(node.nodeType == GNodeType.VarDecl)
          {
-            this[node.word] = 0;
+            this.__object[node.word] = 0;
          }
       }
       
@@ -676,12 +681,12 @@ package parser
             }
             vname = var_arr[0];
             scope = null;
-			//
+           //
 			
             if(vname == "this")
             {
                scope = this;
-               var_arr.shift();;
+               var_arr.shift();
             }
             else if(vname == "super")
             {
@@ -711,7 +716,7 @@ package parser
 				   return;//特殊情况，直接赋值
 			   } 
 				   
-			   var_arr.shift();
+			  var_arr.shift();
             }
             else if(Boolean(this.__vars) && this.__vars[vname] != undefined)
             {
@@ -737,9 +742,9 @@ package parser
             {
                scope = this.__API;
             }
-            else if(Script.__globaldy[vname])
+            else if(Script.globalAPI && Script.globalAPI[vname])
             {
-               scope = Script.__globaldy;
+               scope = Script.globalAPI;
             }else if (parser.GenTree.staticBranch[vname]) {
 				//指向其他静态类
 				scope = parser.GenTree.staticBranch[vname].instance;
@@ -748,7 +753,7 @@ package parser
 			else if(Script._root && Boolean(Script._root.loaderInfo.applicationDomain.hasDefinition(vname)))
             {
                scope = Script.getDef(vname);
-              var_arr.shift();
+               var_arr.shift();
             }
             if(!scope)
             {
@@ -786,13 +791,12 @@ package parser
 					this.lvalue.params = var_arr[var_arr.length - 1];  
 					 
 				  }else if(i<var_arr.length){
-					 
 					lastv = var_arr[var_arr.length - 1];
 					this.lvalue.scope = v;
 					this.lvalue.key = lastv;
 					this.lvalue.params = null;
 				  }else {
-					  this.lvalue.scope = v;
+					this.lvalue.scope = v;  
 				  }
                }
             }

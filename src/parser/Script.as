@@ -38,10 +38,10 @@ package parser
       {
          super();
       }
-      
+      public static var globalAPI:Object={};
       public static function addAPI(Aname:String, api:*) : void
       {
-         __globaldy[Aname] = api;
+         globalAPI[Aname] = api;
       }
       
       public static function getDef(clname:String) : *
@@ -86,19 +86,8 @@ package parser
          {
             return "这是一个脚本类";
          };
-        
-         if(code)
-         {
-            ____globalclass = LoadFromString(code);
-            GenTree.Branch["____globalclass"] = ____globalclass;
-         }
-         else
-         {
-            ____globalclass = newScript("____globalclass");
-         }
-         __globaldy = New("____globalclass");
-         vm = __globaldy;
-		 
+		 //
+		 Script.addAPI("trace",trace);
 		 Script.addAPI("Number",Number);
          Script.addAPI("int",int);
          Script.addAPI("String",String);
@@ -111,6 +100,18 @@ package parser
 		 Script.addAPI("decodeURIComponent", decodeURIComponent);
 		 Script.addAPI("encodeURI", encodeURI);
 		 Script.addAPI("encodeURIComponent", encodeURIComponent);
+         if(code)
+         {
+            ____globalclass = LoadFromString(code);
+            GenTree.Branch["____globalclass"] = ____globalclass;
+         }
+         else
+         {
+            ____globalclass = newScript("____globalclass");
+         }
+         __globaldy = New("____globalclass");
+         vm = __globaldy;
+		
 	  }
       
       public static function LoadFromString(code:String) : *
