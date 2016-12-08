@@ -101,14 +101,22 @@ package parser
 		  }
          return undefined;
       }
-      
-      override flash_proxy function setProperty(name:*, value:*) : void
+	  //
+      override flash_proxy function  hasProperty(vname:*) :Boolean {
+		 if (__rootnode.fields[vname] || __rootnode.motheds[vname] || __super && __super.hasOwnProperty(vname)) {
+			return true; 
+		 }
+		 return false;
+	  }
+		  
+      override flash_proxy function setProperty(vname:*, value:*) : void
       {
-		 if(__rootnode.fields[name]) {
-			this.__object[name] = value;
+		 var na = vname.localName;
+		 if(__rootnode.fields[na]) {
+			this.__object[na] = value;
 			return;
 		 }
-		 this.__super[name] = value;
+		 this.__super[na] = value;
       }
       
       public function get _rootnode() : parser.GenTree
@@ -682,7 +690,9 @@ package parser
             vname = var_arr[0];
             scope = null;
            //
-			
+		   if (vname == "doAction") {
+			  trace(1); 
+		   }
             if(vname == "this")
             {
                scope = this;
@@ -722,15 +732,7 @@ package parser
             {
                scope = this.__vars;
             }
-            else if(this.__object.hasOwnProperty(vname) || (getQualifiedClassName(this.__object)=="Object" && this.__object[vname] != undefined))
-            {
-               scope = this;
-            }
-			else if(this.__super!=null && (__super.hasOwnProperty(vname) || (this.__super is DY && (this.__super as DY)._rootnode.motheds[vname])))
-            {
-               scope = this.__super;
-            }
-            else if(this._rootnode.motheds[vname])
+            else if(this.hasOwnProperty(vname))
             {
                scope = this;
             }else if(this.__static_rootnode && (this.__static_rootnode.motheds[vname] || this.__static_rootnode.fields[vname]))
